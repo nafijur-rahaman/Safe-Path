@@ -1,11 +1,16 @@
-import React from 'react';
+import React from "react";
+import MapView from "../components/MapViiew";
+import HamburgerMenu from "../components/HamburgerMenu";
 
 const HomePage = () => {
-    return (
-        <div>
-            <h1 className='flex justify-center items-center min-h-screen font-bold text-4xl text-pink-700'>Welcome to our SafePath</h1>
-        </div>
-    );
+  return (
+    <div>
+      <div className="App">
+        <HamburgerMenu />
+        <MapView />
+      </div>
+    </div>
+  );
 };
 
 export default HomePage;
