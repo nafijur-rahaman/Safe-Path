@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { LocateFixed } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 
 function FlyToLocation({ position }) {
@@ -37,18 +38,18 @@ export default function MapView() {
   return (
     <div className="relative h-screen w-full">
       {/* Button Component */}
-      <div className="absolute bottom-4 right-4 z-50">
+      <div className="absolute bottom-4 left-10 z-50">
         <button onClick={getMyLocation}
-        className="bg-blue-300 rounded-2xl p-2"
+        className="backdrop-blur-sm rounded-2xl p-2 cursor-pointer"
         >
-          Refresh Location
+          <LocateFixed size={20} />
         </button>
       </div>
 
       {/* Map */}
       <MapContainer center={position} zoom={18} className="h-full w-full z-0">
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         //   attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
         />
         <FlyToLocation position={position} />
