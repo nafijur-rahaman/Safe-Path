@@ -1,7 +1,4 @@
-// src/pages/HomePage.jsx
-
 import React from "react";
-import { Shield, Megaphone, MapPin, AlertTriangle, Clock } from "lucide-react";
 import Hero from "../components/Hero";
 import MapView from "../components/MapViiew";
 import HowItWorks from "../components/HowItWorks";
@@ -9,11 +6,7 @@ import HowItWorks from "../components/HowItWorks";
 const HomePage = () => {
   return (
     <div className="bg-white text-gray-900">
-
-      <Hero/>
-
-
-
+      <Hero />
 
       <section id="live-dashboard" className="py-24 bg-white">
         <div className="container mx-auto px-4">
@@ -21,11 +14,10 @@ const HomePage = () => {
             Live Safety Dashboard
           </h2>
           <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-            This map and feed are generated 100% from anonymous user
-            reports. See the patterns as they emerge.
+            This map and feed are generated 100% from anonymous user reports.
+            See the patterns as they emerge.
           </p>
           <div className="flex flex-col lg:flex-row gap-8 w-full h-[70vh] max-h-[800px]">
-            
             {/* Left Side: Map */}
             <div className="lg:w-2/3 h-full rounded-xl shadow-2xl overflow-hidden border-2 border-gray-200">
               <MapView />
@@ -35,7 +27,9 @@ const HomePage = () => {
             <div className="lg:w-1/3 h-full flex flex-col gap-8">
               {/* Legend Card */}
               <div className="bg-gray-50 p-6 rounded-xl shadow-lg border border-gray-200">
-                <h3 className="text-2xl font-semibold mb-4 text-gray-900">Map Legend</h3>
+                <h3 className="text-2xl font-semibold mb-4 text-gray-900">
+                  Map Legend
+                </h3>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="w-5 h-5 rounded-full bg-red-500 opacity-50 border border-red-300"></div>
@@ -46,7 +40,11 @@ const HomePage = () => {
                     <span className="text-gray-600">Low-Report Area</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <img src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png" alt="marker" className="w-3 h-5" />
+                    <img
+                      src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png"
+                      alt="marker"
+                      className="w-3 h-5"
+                    />
                     <span className="text-gray-600">Your Location</span>
                   </div>
                 </div>
@@ -95,21 +93,20 @@ const HomePage = () => {
           {/* Using Tailwind's typography plugin */}
           <div className="prose prose-lg max-w-none text-gray-700">
             <p>
-              Women and girls face harassment in public spaces every single
-              day. Most of these incidents go unreported because they fear
-              being judged, it takes too much energy, or they feel "it
-              happens to everyone" and stay silent.
+              Women and girls face harassment in public spaces every single day.
+              Most of these incidents go unreported because they fear being
+              judged, it takes too much energy, or they feel "it happens to
+              everyone" and stay silent.
             </p>
             <blockquote>
               The problem isn’t just the harassment — it’s the lack of
               visibility.
             </blockquote>
             <p>
-              Our solution is a simple, anonymous web platform that allows
-              women to report harassment in seconds, automatically mark the
-              location on a heatmap, and generate safety scores. This
-              allows NGOs and Police to view hotspots and take preventive
-              action.
+              Our solution is a simple, anonymous web platform that allows women
+              to report harassment in seconds, automatically mark the location
+              on a heatmap, and generate safety scores. This allows NGOs and
+              Police to view hotspots and take preventive action.
             </p>
           </div>
         </div>
@@ -117,7 +114,5 @@ const HomePage = () => {
     </div>
   );
 };
-
-
 
 export default HomePage;

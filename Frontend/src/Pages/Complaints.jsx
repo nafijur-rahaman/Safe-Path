@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Search,
   Map,
@@ -11,84 +11,12 @@ import {
   X,
   MapPin,
   Clock,
-  Shield,
   ClipboardList,
 } from "lucide-react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import 'leaflet.heat';
 import L from "leaflet";
-
-const dummyIncidents = [
-  {
-    id: 1,
-    type: "Verbal Harassment",
-    location: "Dhaka University Campus",
-    details:
-      "A group of men were catcalling and making inappropriate comments near the arts building.",
-    date: "2025-11-14T14:30:00Z",
-    status: "Pending",
-    coords: [23.734, 90.3925],
-    reportedBy: "Anonymous (Student)",
-    assignedOfficer: "Officer M. Ahmed",
-  },
-  {
-    id: 2,
-    type: "Unsafe Area",
-    location: "Gulshan Lake Park (Night)",
-    details:
-      "The main walking path is completely dark, street lights are broken. I felt very unsafe.",
-    date: "2025-11-13T21:15:00Z",
-    status: "In Progress",
-    coords: [23.7935, 90.4183],
-    reportedBy: "Anonymous (Resident)",
-    assignedOfficer: "Officer F. Khan",
-  },
-  {
-    id: 3,
-    type: "Stalking",
-    location: "Banani Road 11",
-    details:
-      "A man followed me from the bus stop to my apartment entrance for three blocks.",
-    date: "2025-11-13T18:00:00Z",
-    status: "Resolved",
-    coords: [23.794, 90.4068],
-    reportedBy: "Anonymous",
-    assignedOfficer: "Officer J. Islam",
-  },
-  {
-    id: 4,
-    type: "Physical Assault",
-    location: "New Market Area",
-    details: "Was shoved and threatened by a shopkeeper after a dispute.",
-    date: "2025-11-12T13:00:00Z",
-    status: "Pending",
-    coords: [23.7311, 90.3855],
-    reportedBy: "Anonymous",
-    assignedOfficer: "Officer M. Ahmed",
-  },
-  {
-    id: 5,
-    type: "Discrimination",
-    location: "Dhanmondi Restaurant",
-    details: "Refused service by the manager based on my appearance.",
-    date: "2025-11-11T20:00:00Z",
-    status: "In Progress",
-    coords: [23.748, 90.3731],
-    reportedBy: "Anonymous",
-    assignedOfficer: "Officer F. Khan",
-  },
-  {
-    id: 6,
-    type: "Verbal Harassment",
-    location: "Mohakhali Bus Terminal",
-    details: "Bus conductor made lewd remarks and refused to give back change.",
-    date: "2025-11-10T09:15:00Z",
-    status: "Resolved",
-    coords: [23.7801, 90.4072],
-    reportedBy: "Anonymous",
-    assignedOfficer: "Officer J. Islam",
-  },
-];
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -100,33 +28,78 @@ L.Icon.Default.mergeOptions({
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
+// --- Dummy data ---
+const dummyIncidents = [
+  {
+    incidentType: "physical_assault",
+    description: "sdfs",
+    dateTime: "2025-11-17T17:37",
+    location: {
+      latitude: 23.8059708,
+      longitude: 90.3677831,
+      displayName: "23.80597, 90.36778",
+    },
+    reporter: { anonymous: true },
+    submittedAt: "2025-11-17T11:37:29.315Z",
+    status: "pending",
+  },
+  {
+    incidentType: "verbal_harassment",
+    description: "Someone shouted at me in the street.",
+    dateTime: "2025-11-16T10:00",
+    location: {
+      latitude: 23.8103,
+      longitude: 90.4125,
+      displayName: "Dhaka University Campus",
+    },
+    reporter: { anonymous: true },
+    submittedAt: "2025-11-16T10:05:00Z",
+    status: "resolved",
+  },
+  {
+    incidentType: "unsafe_area",
+    description: "Street lights not working at night.",
+    dateTime: "2025-11-15T20:30",
+    location: {
+      latitude: 23.7935,
+      longitude: 90.4183,
+      displayName: "Gulshan Lake Park",
+    },
+    reporter: { anonymous: true },
+    submittedAt: "2025-11-15T20:35:00Z",
+    status: "pending",
+  },
+];
+
+// --- Helper to transform dummy data ---
+const transformIncident = (incident, id) => ({
+  id: id,
+  type: incident.incidentType
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase()),
+  location: incident.location.displayName,
+  details: incident.description,
+  date: incident.dateTime,
+  status: incident.status.charAt(0).toUpperCase() + incident.status.slice(1),
+  coords: [incident.location.latitude, incident.location.longitude],
+  reporter: incident.reporter.anonymous ? "Anonymous" : "Known",
+});
+
+// --- Dashboard Component ---
 export default function IncidentDashboard() {
   const [viewMode, setViewMode] = useState("list");
   const [incidents, setIncidents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
   const [filterType, setFilterType] = useState("All");
   const [sortBy, setSortBy] = useState("latest");
-
   const [selectedIncident, setSelectedIncident] = useState(null);
 
   useEffect(() => {
-    const fetchIncidents = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        await new Promise((res) => setTimeout(res, 1500));
-        setIncidents(dummyIncidents);
-      } catch {
-        setError("Failed to load incidents. Please try again later.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchIncidents();
+    const transformed = dummyIncidents.map((i, idx) => transformIncident(i, idx + 1));
+    setIncidents(transformed);
+    setIsLoading(false);
   }, []);
 
   const filteredIncidents = useMemo(() => {
@@ -135,8 +108,7 @@ export default function IncidentDashboard() {
         const searchMatch =
           incident.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
           incident.details.toLowerCase().includes(searchTerm.toLowerCase());
-        const statusMatch =
-          filterStatus === "All" || incident.status === filterStatus;
+        const statusMatch = filterStatus === "All" || incident.status === filterStatus;
         const typeMatch = filterType === "All" || incident.type === filterType;
         return searchMatch && statusMatch && typeMatch;
       })
@@ -157,17 +129,9 @@ export default function IncidentDashboard() {
   const handleViewDetails = (incident) => setSelectedIncident(incident);
   const handleCloseModal = () => setSelectedIncident(null);
 
-  const renderContent = () => {
-    if (isLoading) return <IncidentListLoader />;
-    if (error) return <ErrorMessage message={error} />;
-    if (viewMode === "list")
-      return <IncidentList incidents={filteredIncidents} onViewDetails={handleViewDetails} />;
-    if (viewMode === "map") return <IncidentMap incidents={filteredIncidents} />;
-    return null;
-  };
-
   return (
-    <div className="flex-1 bg-gray-50/50 min-h-screen p-6 md:p-10 font-sans">
+    <div className="flex-1 bg-gray-50 min-h-screen p-6 md:p-10 font-sans">
+      {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <div>
           <h1 className="text-4xl font-bold text-gray-900">All Reported Incidents</h1>
@@ -182,8 +146,7 @@ export default function IncidentDashboard() {
               viewMode === "list" ? "bg-white text-indigo-600 shadow" : "text-gray-600 hover:text-gray-900"
             }`}
           >
-            <List size={18} className="mr-2" />
-            List View
+            <List size={18} className="mr-2" /> List View
           </button>
           <button
             onClick={() => setViewMode("map")}
@@ -191,18 +154,19 @@ export default function IncidentDashboard() {
               viewMode === "map" ? "bg-white text-indigo-600 shadow" : "text-gray-600 hover:text-gray-900"
             }`}
           >
-            <Map size={18} className="mr-2" />
-            Map View
+            <Map size={18} className="mr-2" /> Map View
           </button>
         </div>
       </div>
 
+      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <StatCard title="Total Reports" value={isLoading ? "..." : dashboardStats.totalReports} icon={<BarChart className="text-indigo-500" />} />
-        <StatCard title="Reports Pending" value={isLoading ? "..." : dashboardStats.pendingReports} icon={<AlertOctagon className="text-yellow-500" />} />
-        <StatCard title="Cases Resolved" value={isLoading ? "..." : dashboardStats.resolvedReports} icon={<CheckCircle className="text-green-500" />} />
+        <StatCard title="Total Reports" value={dashboardStats.totalReports} icon={<BarChart className="text-indigo-500" />} />
+        <StatCard title="Reports Pending" value={dashboardStats.pendingReports} icon={<AlertOctagon className="text-yellow-500" />} />
+        <StatCard title="Cases Resolved" value={dashboardStats.resolvedReports} icon={<CheckCircle className="text-green-500" />} />
       </div>
 
+      {/* Filters */}
       <div className="bg-white p-4 rounded-xl shadow-sm mb-8 sticky top-4 z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="relative">
@@ -226,10 +190,8 @@ export default function IncidentDashboard() {
 
           <FilterDropdown label="Incident Type" value={filterType} onChange={(e) => setFilterType(e.target.value)}>
             <option>All</option>
-            <option>Verbal Harassment</option>
             <option>Physical Assault</option>
-            <option>Discrimination</option>
-            <option>Stalking</option>
+            <option>Verbal Harassment</option>
             <option>Unsafe Area</option>
           </FilterDropdown>
 
@@ -240,15 +202,25 @@ export default function IncidentDashboard() {
         </div>
       </div>
 
-      <div>{renderContent()}</div>
+      {/* Content */}
+      {viewMode === "list" ? (
+        <IncidentList incidents={filteredIncidents} onViewDetails={handleViewDetails} />
+      ) : (
+        <IncidentMap incidents={filteredIncidents} />
+      )}
 
       {selectedIncident && <IncidentDetailModal incident={selectedIncident} onClose={handleCloseModal} />}
     </div>
   );
 }
 
-// --- Sub-Components ---
+// --- Subcomponents (StatCard, FilterDropdown, IncidentList, IncidentMap, IncidentCard, StatusBadge, Modal etc.) ---
+// You can use the same subcomponents from previous code with minor tweaks for the new incident structure
 
+
+
+
+// --- Sub-components ---
 function StatCard({ title, value, icon }) {
   return (
     <div className="bg-white p-6 rounded-2xl shadow-lg flex items-center space-x-4 transition-all hover:scale-[1.02] hover:shadow-xl">
@@ -294,34 +266,6 @@ function IncidentList({ incidents, onViewDetails }) {
   );
 }
 
-function IncidentMap({ incidents }) {
-  const defaultPosition = [23.8103, 90.4125];
-  const mapKey = incidents.map((i) => i.id).join("-");
-
-  return (
-    <div className="h-[600px] w-full rounded-2xl shadow-xl overflow-hidden">
-      <MapContainer key={mapKey} center={defaultPosition} zoom={12} scrollWheelZoom className="w-full h-full">
-        <TileLayer
-          attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        {incidents.map((incident) => (
-          <Marker key={incident.id} position={incident.coords}>
-            <Popup>
-              <div className="font-sans">
-                <h3 className="font-bold text-md">{incident.type}</h3>
-                <p className="text-sm text-gray-700">{incident.location}</p>
-                <p className="text-xs text-gray-500 mt-1">{new Date(incident.date).toLocaleString()}</p>
-                <StatusBadge status={incident.status} className="mt-2" />
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
-    </div>
-  );
-}
-
 function IncidentCard({ incident, onViewDetails }) {
   return (
     <div className="bg-white rounded-2xl shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl overflow-hidden flex flex-col justify-between">
@@ -332,9 +276,6 @@ function IncidentCard({ incident, onViewDetails }) {
         </div>
         <p className="text-sm text-gray-500 mb-4">
           <span className="font-medium text-gray-600">Location:</span> {incident.location}
-        </p>
-        <p className="text-sm text-gray-500 mb-4">
-          <span className="font-medium text-gray-600">Reported:</span> {new Date(incident.date).toLocaleDateString()}
         </p>
         <p className="text-gray-700 text-sm line-clamp-3">{incident.details}</p>
       </div>
@@ -350,6 +291,60 @@ function IncidentCard({ incident, onViewDetails }) {
     </div>
   );
 }
+
+
+
+// Updated IncidentMap to show hotspots
+function IncidentMap({ incidents }) {
+  const defaultPosition = [23.8103, 90.4125]; // Center of Dhaka
+
+  // Optional: aggregate reports per location for intensity
+  const locationMap = {};
+  incidents.forEach((i) => {
+    const key = `${i.coords[0].toFixed(5)},${i.coords[1].toFixed(5)}`;
+    if (!locationMap[key]) locationMap[key] = [];
+    locationMap[key].push(i);
+  });
+
+  return (
+    <div className="h-[600px] w-full rounded-2xl shadow-xl overflow-hidden">
+      <MapContainer center={defaultPosition} zoom={12} scrollWheelZoom className="w-full h-full">
+        <TileLayer
+          attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+
+        {Object.values(locationMap).map((reports, idx) => {
+          const first = reports[0];
+          const intensity = reports.length; // number of reports at this spot
+          return (
+            <CircleMarker
+              key={idx}
+              center={first.coords}
+              radius={8 + intensity * 2} // bigger for more reports
+              color={intensity > 1 ? "red" : "orange"} // color intensity
+              fillOpacity={0.6}
+            >
+              <Popup>
+                <div className="font-sans">
+                  <h3 className="font-bold text-md">Hotspot ({reports.length} reports)</h3>
+                  {reports.map((r, i) => (
+                    <div key={i} className="mt-2 border-t border-gray-200 pt-1">
+                      <p><strong>Type:</strong> {r.type}</p>
+                      <p><strong>Date:</strong> {new Date(r.dateTime).toLocaleString()}</p>
+                      <p><strong>Description:</strong> {r.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </Popup>
+            </CircleMarker>
+          );
+        })}
+      </MapContainer>
+    </div>
+  );
+}
+
 
 function StatusBadge({ status, className = "" }) {
   const styles = {
@@ -407,7 +402,6 @@ function IncidentDetailModal({ incident, onClose }) {
         <div className="flex justify-between items-center p-6 border-b">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Incident Details</h2>
-            <p className="text-sm text-gray-500">ID: {incident.id}</p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
             <X size={24} />
