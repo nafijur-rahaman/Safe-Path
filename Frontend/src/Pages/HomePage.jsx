@@ -1,11 +1,20 @@
-import React from 'react';
+import React from "react";
+import Hero from "../components/Hero";
+import MapView from "../components/MapView";
+import HowItWorks from "../components/HowItWorks";
+import ProblemOfSilence from "../components/ProblemOfSilence";
 
 const HomePage = () => {
-    return (
-        <div>
-            <h1 className='flex justify-center items-center min-h-screen font-bold text-4xl text-pink-700'>Welcome to our SafePath</h1>
-        </div>
-    );
+  return (
+    <div className="bg-white text-gray-900">
+      <Hero />
+
+      <MapView />
+
+      <HowItWorks></HowItWorks>
+      <ProblemOfSilence></ProblemOfSilence>
+    </div>
+  );
 };
 
 export default HomePage;
