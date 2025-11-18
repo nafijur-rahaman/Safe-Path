@@ -37,7 +37,7 @@ class ReportView(APIView):
                 "errors": serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
     def get(self, request):
-        reports = Report.objects.all()
+        reports = Report.objects.all().order_by('-id')
         serializer = ReportSerializer(reports, many=True)
         return Response({
             "success": True,
