@@ -1,8 +1,15 @@
 from django.shortcuts import render
+
+
+#django imports 
+
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
+
+#local imports
 from .serializers import LocationSerializer, ReportSerializer
 from .models import Report, Location
 
@@ -66,12 +73,17 @@ class ReportView(APIView):
 
 class GetAllAcceptedReportsView(APIView):
     def get(self, request):
-        reports = Report.objects.filter(status='accepted')
-        serializer = ReportSerializer(reports, many=True)
-        return Response({
-            "success": True,
-            "data": serializer.data
-        }, status=status.HTTP_200_OK)
+        reports = Report.objects.filter(
+            status='accepted'
+        ).order_by('-id')  
+
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
+        paginator.page_size_query_param = 'page_size'
+        page = paginator.paginate_queryset(reports, request)
+        serializer = ReportSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
 
 
 # admin report views 

@@ -32,4 +32,7 @@ class Report(models.Model):
     submitted_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     assigned_ngo = models.CharField(max_length=100, blank=True, null=True)
+    
+    def __str__(self):
+        return f"Report #{self.id} - {self.incident_type}"
 
