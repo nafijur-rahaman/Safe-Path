@@ -1,3 +1,4 @@
+// src/Pages/LiveDashboard.jsx
 import React, { useState, useEffect, useRef } from "react";
 import {
   MapContainer,
@@ -9,52 +10,7 @@ import {
 } from "react-leaflet";
 import { LocateFixed, Clock, AlertTriangle } from "lucide-react";
 import "leaflet/dist/leaflet.css";
-
-// Dummy data
-const dummyHotspots = [
-  {
-    id: 1,
-    incidentType: "physical_assault",
-    description: "Person was shoved by shopkeeper",
-    dateTime: "2025-11-17T17:37",
-    location: {
-      latitude: 23.81443,
-      longitude: 90.35582,
-      displayName: "23.80597, 90.36778",
-    },
-    reporter: { anonymous: true },
-    submittedAt: "2025-11-17T11:37:29.315Z",
-    status: "pending",
-  },
-  {
-    id: 2,
-    incidentType: "verbal_harassment",
-    description: "Inappropriate remarks by bus conductor",
-    dateTime: "2025-11-16T09:15",
-    location: {
-      latitude: 23.7801,
-      longitude: 90.4072,
-      displayName: "23.7801, 90.4072",
-    },
-    reporter: { anonymous: true },
-    submittedAt: "2025-11-16T08:50:29.315Z",
-    status: "resolved",
-  },
-  {
-    id: 3,
-    incidentType: "unsafe_area",
-    description: "Dark pathway, no lights",
-    dateTime: "2025-11-15T21:15",
-    location: {
-      latitude: 23.7935,
-      longitude: 90.4183,
-      displayName: "Gulshan Lake Park",
-    },
-    reporter: { anonymous: true },
-    submittedAt: "2025-11-15T20:50:29.315Z",
-    status: "in_progress",
-  },
-];
+import { useAuth } from "../context/AuthContext";
 
 // Fly to selected report
 function FlyToLocation({ position, zoom = 16 }) {
@@ -65,7 +21,7 @@ function FlyToLocation({ position, zoom = 16 }) {
   return null;
 }
 
-function MapView({ selectedLocation }) {
+function MapView({ selectedLocation, reports }) {
   const [currentLocation, setCurrentLocation] = useState(null);
   const mapRef = useRef(null);
 
@@ -73,7 +29,7 @@ function MapView({ selectedLocation }) {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       (pos) => setCurrentLocation([pos.coords.latitude, pos.coords.longitude]),
-      () => setCurrentLocation([23.8103, 90.4125])
+      () => setCurrentLocation([23.8103, 90.4125]) // fallback
     );
   }, []);
 
@@ -82,24 +38,17 @@ function MapView({ selectedLocation }) {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const { latitude, longitude } = position.coords;
-        const coords = [latitude, longitude];
-
+        const coords = [position.coords.latitude, position.coords.longitude];
         setCurrentLocation(coords);
         mapRef.current.flyTo(coords, 16, { duration: 1.5 });
       },
-      (error) => {
-        console.error("Error getting location:", error);
-        alert("Unable to get your current location.");
-      }
+      () => alert("Unable to get your current location.")
     );
   };
 
   if (!currentLocation)
     return (
-      <div className="flex items-center justify-center h-full">
-        Loading map...
-      </div>
+      <div className="flex items-center justify-center h-full">Loading map...</div>
     );
 
   return (
@@ -118,25 +67,28 @@ function MapView({ selectedLocation }) {
           <Popup>You are here!</Popup>
         </Marker>
 
-        {dummyHotspots.map((report) => (
+        {reports.map((report) => (
           <Circle
             key={report.id}
             center={[report.location.latitude, report.location.longitude]}
             radius={60}
             pathOptions={{
               color:
-                report.status === "pending"
+                report.status === "accepted"
                   ? "red"
-                  : report.status === "in_progress"
-                  ? "orange"
-                  : "green",
+                  : report.status === "resolved"
+                  ? "green"
+                  : "gray",
               fillOpacity: 0.4,
             }}
           >
             <Popup>
               <div className="font-sans">
-                <h3 className="font-bold text-md">{report.incidentType}</h3>
-                <p className="text-sm">{report.location.displayName}</p>
+                <h3 className="font-bold text-md">{report.incident_type.replace("_", " ")}</h3>
+                <p className="text-sm">{report.location.display_name}</p>
+                <p className="text-xs mt-1 font-medium">
+                  Status: {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+                </p>
               </div>
             </Popup>
           </Circle>
@@ -144,7 +96,6 @@ function MapView({ selectedLocation }) {
       </MapContainer>
 
       <button
-        id="locate-btn"
         onClick={goToCurrentLocation}
         className="absolute bottom-4 left-4 z-[1000] bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-lg"
         title="Current Location"
@@ -155,52 +106,65 @@ function MapView({ selectedLocation }) {
   );
 }
 
-// Main Dashboard
 export default function LiveDashboard() {
+  const { api } = useAuth();
+  const [reports, setReports] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchReports = async () => {
+    setLoading(true);
+    try {
+      // Only get reports that admin has accepted
+      const res = await api.get("/report/get-all-accepted-reports/");
+      const data = res.data.results || [];
+      setReports(data);
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+      alert("Failed to fetch reports.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReports();
+    const interval = setInterval(fetchReports, 30000); // refresh every 30s
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <section id="live-dashboard" className="py-24 bg-white">
+      {loading && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div className="text-white text-lg font-bold">Loading Reports...</div>
+        </div>
+      )}
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-bold text-center mb-4">
-          Live Safety Dashboard
-        </h2>
+        <h2 className="text-4xl font-bold text-center mb-4">Live Safety Dashboard</h2>
         <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-          This map and feed are generated 100% from anonymous user reports. See
-          the patterns as they emerge.
+          This map and feed are generated 100% from anonymous user reports. See the patterns as they emerge.
         </p>
 
         <div className="flex flex-col lg:flex-row gap-8 w-full h-[70vh] max-h-[800px]">
           {/* Map */}
           <div className="lg:w-2/3 h-full rounded-xl shadow-2xl overflow-hidden border-2 border-gray-200">
-            <MapView selectedLocation={selectedLocation} />
+            <MapView selectedLocation={selectedLocation} reports={reports} />
           </div>
 
           {/* Feed & Legend */}
           <div className="lg:w-1/3 h-full flex flex-col gap-8">
             {/* Legend */}
             <div className="bg-gray-50 p-6 rounded-xl shadow-lg border border-gray-200">
-              <h3 className="text-2xl font-semibold mb-4 text-gray-900">
-                Map Legend
-              </h3>
+              <h3 className="text-2xl font-semibold mb-4 text-gray-900">Map Legend</h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-red-500 opacity-50 border border-red-300"></div>
-                  <span className="text-gray-600">
-                    Pending / High Report Area
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full bg-orange-500 opacity-50 border border-orange-300"></div>
-                  <span className="text-gray-600">
-                    In Progress / Medium Report Area
-                  </span>
+                  <span className="text-gray-600">Accepted / High Report Area</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-green-500 opacity-50 border border-green-300"></div>
-                  <span className="text-gray-600">
-                    Resolved / Low Report Area
-                  </span>
+                  <span className="text-gray-600">Resolved / Low Report Area</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <img
@@ -215,20 +179,15 @@ export default function LiveDashboard() {
 
             {/* Live Feed */}
             <div className="bg-gray-50 p-6 rounded-xl shadow-lg border border-gray-200 flex-1 overflow-y-auto">
-              <h3 className="text-2xl font-semibold mb-5 text-gray-900">
-                Recent Anonymous Reports
-              </h3>
+              <h3 className="text-2xl font-semibold mb-5 text-gray-900">Recent Anonymous Reports</h3>
               <div className="space-y-5">
-                {dummyHotspots
-                  .sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime))
+                {reports
+                  .sort((a, b) => new Date(b.date_time) - new Date(a.date_time))
                   .map((report) => (
                     <div
                       key={report.id}
                       onClick={() =>
-                        setSelectedLocation([
-                          report.location.latitude,
-                          report.location.longitude,
-                        ])
+                        setSelectedLocation([report.location.latitude, report.location.longitude])
                       }
                       className="cursor-pointer hover:bg-gray-100 transition-all flex items-start gap-4 p-4 bg-white rounded-lg border border-gray-200 shadow-sm"
                     >
@@ -236,25 +195,23 @@ export default function LiveDashboard() {
                         <AlertTriangle
                           size={20}
                           className={`${
-                            report.status === "pending"
+                            report.status === "accepted"
                               ? "text-red-600"
-                              : report.status === "in_progress"
-                              ? "text-orange-600"
-                              : "text-green-600"
+                              : report.status === "resolved"
+                              ? "text-green-600"
+                              : "text-gray-500"
                           }`}
                         />
                       </div>
                       <div>
                         <h4 className="font-semibold text-gray-900">
-                          {report.incidentType.replace("_", " ")}
+                          {report.incident_type.replace("_", " ")}
                         </h4>
                         <p className="text-sm text-gray-500 flex items-center gap-2">
                           <Clock size={14} />
-                          {new Date(report.dateTime).toLocaleString()}
+                          {new Date(report.date_time).toLocaleString()}
                         </p>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {report.description}
-                        </p>
+                        <p className="text-sm text-gray-600 mt-1">{report.description}</p>
                       </div>
                     </div>
                   ))}
