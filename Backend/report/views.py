@@ -153,13 +153,6 @@ class ReportStatisticsView(APIView):
 
 
 class DashboardSummaryView(APIView):
-    """
-    Provides data for admin dashboard:
-    - Total reports
-    - Reports count by status
-    - Reports count by incident type
-    - Recent 5 reports
-    """
 
     def get(self, request):
         total_reports = Report.objects.count()
