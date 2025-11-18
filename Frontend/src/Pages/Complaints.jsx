@@ -1,3 +1,4 @@
+// src/pages/Complaints.jsx
 import React, { useState, useMemo, useEffect } from "react";
 import {
   Search,
@@ -15,8 +16,8 @@ import {
 } from "lucide-react";
 import { MapContainer, TileLayer, Marker, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import 'leaflet.heat';
 import L from "leaflet";
+import { useAuth } from "../context/AuthContext";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -28,65 +29,21 @@ L.Icon.Default.mergeOptions({
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-// --- Dummy data ---
-const dummyIncidents = [
-  {
-    incidentType: "physical_assault",
-    description: "sdfs",
-    dateTime: "2025-11-17T17:37",
-    location: {
-      latitude: 23.8059708,
-      longitude: 90.3677831,
-      displayName: "23.80597, 90.36778",
-    },
-    reporter: { anonymous: true },
-    submittedAt: "2025-11-17T11:37:29.315Z",
-    status: "pending",
-  },
-  {
-    incidentType: "verbal_harassment",
-    description: "Someone shouted at me in the street.",
-    dateTime: "2025-11-16T10:00",
-    location: {
-      latitude: 23.8103,
-      longitude: 90.4125,
-      displayName: "Dhaka University Campus",
-    },
-    reporter: { anonymous: true },
-    submittedAt: "2025-11-16T10:05:00Z",
-    status: "resolved",
-  },
-  {
-    incidentType: "unsafe_area",
-    description: "Street lights not working at night.",
-    dateTime: "2025-11-15T20:30",
-    location: {
-      latitude: 23.7935,
-      longitude: 90.4183,
-      displayName: "Gulshan Lake Park",
-    },
-    reporter: { anonymous: true },
-    submittedAt: "2025-11-15T20:35:00Z",
-    status: "pending",
-  },
-];
-
-// --- Helper to transform dummy data ---
-const transformIncident = (incident, id) => ({
-  id: id,
-  type: incident.incidentType
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase()),
-  location: incident.location.displayName,
+// Helper: Transform API report to dashboard format
+const transformIncident = (incident) => ({
+  id: incident.id,
+  type: incident.incident_type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+  location: incident.location.display_name,
   details: incident.description,
-  date: incident.dateTime,
-  status: incident.status.charAt(0).toUpperCase() + incident.status.slice(1),
+  date: incident.date_time,
+  status:
+    incident.status === "accepted"
+      ? "Accepted"
+      : incident.status.charAt(0).toUpperCase() + incident.status.slice(1),
   coords: [incident.location.latitude, incident.location.longitude],
-  reporter: incident.reporter.anonymous ? "Anonymous" : "Known",
 });
 
-// --- Dashboard Component ---
-export default function IncidentDashboard() {
+export default function Complaints() {
   const [viewMode, setViewMode] = useState("list");
   const [incidents, setIncidents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -95,13 +52,50 @@ export default function IncidentDashboard() {
   const [filterType, setFilterType] = useState("All");
   const [sortBy, setSortBy] = useState("latest");
   const [selectedIncident, setSelectedIncident] = useState(null);
+  const [stats, setStats] = useState({
+    totalReports: 0,
+    pendingReports: 0,
+    acceptedReports: 0,
+    solvedReports: 0,
+    rejectedReports: 0,
+  });
+  const [error, setError] = useState(null);
+
+  const { api } = useAuth();
 
   useEffect(() => {
-    const transformed = dummyIncidents.map((i, idx) => transformIncident(i, idx + 1));
-    setIncidents(transformed);
-    setIsLoading(false);
-  }, []);
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch report statistics
+        const statsRes = await api.get("/report/get-report-statistics/");
+        console.log(statsRes);
+        if (statsRes.data.success) {
+          setStats({
+            totalReports: statsRes.data.data.total_reports,
+            pendingReports: statsRes.data.data.pending_reports,
+            acceptedReports: statsRes.data.data.accepted_reports,
+            solvedReports: statsRes.data.data.solved_reports,
+            rejectedReports: statsRes.data.data.rejected_reports,
+          });
+        }
 
+        // Fetch accepted reports
+        const reportsRes = await api.get("/report/get-all-accepted-reports/");
+        console.log(reportsRes);
+        const transformed = reportsRes.data.results.map(transformIncident);
+        setIncidents(transformed);
+      } catch (err) {
+        console.error(err);
+        setError(err.response?.data?.detail || err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [api]);
+console.log(incidents);
   const filteredIncidents = useMemo(() => {
     return incidents
       .filter((incident) => {
@@ -119,15 +113,11 @@ export default function IncidentDashboard() {
       );
   }, [incidents, searchTerm, filterStatus, filterType, sortBy]);
 
-  const dashboardStats = useMemo(() => {
-    const totalReports = incidents.length;
-    const pendingReports = incidents.filter((i) => i.status === "Pending").length;
-    const resolvedReports = incidents.filter((i) => i.status === "Resolved").length;
-    return { totalReports, pendingReports, resolvedReports };
-  }, [incidents]);
-
   const handleViewDetails = (incident) => setSelectedIncident(incident);
   const handleCloseModal = () => setSelectedIncident(null);
+
+  if (isLoading) return <IncidentListLoader />;
+  if (error) return <ErrorMessage message={error} />;
 
   return (
     <div className="flex-1 bg-gray-50 min-h-screen p-6 md:p-10 font-sans">
@@ -161,9 +151,9 @@ export default function IncidentDashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <StatCard title="Total Reports" value={dashboardStats.totalReports} icon={<BarChart className="text-indigo-500" />} />
-        <StatCard title="Reports Pending" value={dashboardStats.pendingReports} icon={<AlertOctagon className="text-yellow-500" />} />
-        <StatCard title="Cases Resolved" value={dashboardStats.resolvedReports} icon={<CheckCircle className="text-green-500" />} />
+        <StatCard title="Total Reports" value={stats.totalReports} icon={<BarChart className="text-indigo-500" />} />
+        <StatCard title="Reports Pending" value={stats.pendingReports} icon={<AlertOctagon className="text-yellow-500" />} />
+        <StatCard title="Cases Accepted" value={stats.acceptedReports} icon={<CheckCircle className="text-green-500" />} />
       </div>
 
       {/* Filters */}
@@ -184,8 +174,8 @@ export default function IncidentDashboard() {
           <FilterDropdown label="Status" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
             <option>All</option>
             <option>Pending</option>
-            <option>In Progress</option>
-            <option>Resolved</option>
+            <option>Accepted</option>
+            <option>Solved</option>
           </FilterDropdown>
 
           <FilterDropdown label="Incident Type" value={filterType} onChange={(e) => setFilterType(e.target.value)}>
@@ -214,13 +204,8 @@ export default function IncidentDashboard() {
   );
 }
 
-// --- Subcomponents (StatCard, FilterDropdown, IncidentList, IncidentMap, IncidentCard, StatusBadge, Modal etc.) ---
-// You can use the same subcomponents from previous code with minor tweaks for the new incident structure
+// ---------------- Subcomponents ----------------
 
-
-
-
-// --- Sub-components ---
 function StatCard({ title, value, icon }) {
   return (
     <div className="bg-white p-6 rounded-2xl shadow-lg flex items-center space-x-4 transition-all hover:scale-[1.02] hover:shadow-xl">
@@ -292,13 +277,28 @@ function IncidentCard({ incident, onViewDetails }) {
   );
 }
 
+function StatusBadge({ status, className = "" }) {
+  const styles = {
+    Pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
+    Accepted: "bg-blue-100 text-blue-800 border-blue-200",
+    Solved: "bg-green-100 text-green-800 border-green-200",
+    Rejected: "bg-red-100 text-red-800 border-red-200",
+  };
+  return (
+    <span
+      className={`px-3 py-1 text-xs font-semibold rounded-full border ${
+        styles[status] || "bg-gray-100 text-gray-800"
+      } ${className}`}
+    >
+      {status}
+    </span>
+  );
+}
 
-
-// Updated IncidentMap to show hotspots
 function IncidentMap({ incidents }) {
-  const defaultPosition = [23.8103, 90.4125]; // Center of Dhaka
+  const defaultPosition = [23.8103, 90.4125]; // Dhaka
 
-  // Optional: aggregate reports per location for intensity
+  // Aggregate incidents per location
   const locationMap = {};
   incidents.forEach((i) => {
     const key = `${i.coords[0].toFixed(5)},${i.coords[1].toFixed(5)}`;
@@ -313,16 +313,15 @@ function IncidentMap({ incidents }) {
           attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-
         {Object.values(locationMap).map((reports, idx) => {
           const first = reports[0];
-          const intensity = reports.length; // number of reports at this spot
+          const intensity = reports.length;
           return (
             <CircleMarker
               key={idx}
               center={first.coords}
-              radius={8 + intensity * 2} // bigger for more reports
-              color={intensity > 1 ? "red" : "orange"} // color intensity
+              radius={8 + intensity * 2}
+              color={intensity > 1 ? "red" : "orange"}
               fillOpacity={0.6}
             >
               <Popup>
@@ -331,8 +330,8 @@ function IncidentMap({ incidents }) {
                   {reports.map((r, i) => (
                     <div key={i} className="mt-2 border-t border-gray-200 pt-1">
                       <p><strong>Type:</strong> {r.type}</p>
-                      <p><strong>Date:</strong> {new Date(r.dateTime).toLocaleString()}</p>
-                      <p><strong>Description:</strong> {r.description}</p>
+                      <p><strong>Date:</strong> {new Date(r.date).toLocaleString()}</p>
+                      <p><strong>Description:</strong> {r.details}</p>
                     </div>
                   ))}
                 </div>
@@ -345,64 +344,12 @@ function IncidentMap({ incidents }) {
   );
 }
 
-
-function StatusBadge({ status, className = "" }) {
-  const styles = {
-    Pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    "In Progress": "bg-blue-100 text-blue-800 border-blue-200",
-    Resolved: "bg-green-100 text-green-800 border-green-200",
-  };
-  return <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${styles[status] || "bg-gray-100 text-gray-800"} ${className}`}>{status}</span>;
-}
-
-function IncidentListLoader() {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {[...Array(6)].map((_, i) => (
-        <SkeletonCard key={i} />
-      ))}
-    </div>
-  );
-}
-
-function SkeletonCard() {
-  return (
-    <div className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse">
-      <div className="p-6">
-        <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
-        <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-        <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-        <div className="h-4 bg-gray-200 rounded w-4/5"></div>
-      </div>
-      <div className="bg-gray-50 p-4 border-t border-gray-100">
-        <div className="h-5 bg-gray-200 rounded w-1/3 mx-auto"></div>
-      </div>
-    </div>
-  );
-}
-
-function ErrorMessage({ message }) {
-  return (
-    <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-xl shadow-md flex items-center">
-      <AlertTriangle size={24} className="mr-4 text-red-500" />
-      <div>
-        <h3 className="font-bold text-lg">An Error Occurred</h3>
-        <p>{message}</p>
-      </div>
-    </div>
-  );
-}
-
 function IncidentDetailModal({ incident, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/50" onClick={onClose}>
       <div className="w-full max-w-lg h-full bg-white shadow-2xl flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center p-6 border-b">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Incident Details</h2>
-          </div>
+          <h2 className="text-2xl font-bold text-gray-900">Incident Details</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
             <X size={24} />
           </button>
@@ -449,6 +396,46 @@ function DetailItem({ icon, label, value }) {
         {label}
       </h4>
       <p className="text-md font-semibold text-gray-900">{value}</p>
+    </div>
+  );
+}
+
+function IncidentListLoader() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {[...Array(6)].map((_, i) => (
+        <SkeletonCard key={i} />
+      ))}
+    </div>
+  );
+}
+
+function SkeletonCard() {
+  return (
+    <div className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse">
+      <div className="p-6">
+        <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
+        <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+        <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+        <div className="h-4 bg-gray-200 rounded w-4/5"></div>
+      </div>
+      <div className="bg-gray-50 p-4 border-t border-gray-100">
+        <div className="h-5 bg-gray-200 rounded w-1/3 mx-auto"></div>
+      </div>
+    </div>
+  );
+}
+
+function ErrorMessage({ message }) {
+  return (
+    <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-xl shadow-md flex items-center">
+      <AlertTriangle size={24} className="mr-4 text-red-500" />
+      <div>
+        <h3 className="font-bold text-lg">An Error Occurred</h3>
+        <p>{message}</p>
+      </div>
     </div>
   );
 }

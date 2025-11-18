@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token") || null);
 
   const api = axios.create({
-    baseURL: "http://localhost:8000/api",
+    baseURL: "https://safepath-server.vercel.app/api",
   });
 
 
