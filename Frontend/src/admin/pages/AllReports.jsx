@@ -205,13 +205,13 @@ const AllReports = () => {
     onChange={(e) => updateStatus(r.id, e.target.value)}
     className="px-2 py-1 text-xs rounded border border-gray-300 bg-white text-gray-700 outline-none focus:border-red-500"
   >
-    {/* --- FIX START: Add a disabled placeholder if status is pending --- */}
+ 
     {currentStatus === "pending" && (
       <option value="pending" disabled>
         Select Action
       </option>
     )}
-    {/* --- FIX END --- */}
+  
 
     {STATUS_CHOICES.filter((s) => s.value !== "pending").map((s) => (
       <option key={s.value} value={s.value}>
