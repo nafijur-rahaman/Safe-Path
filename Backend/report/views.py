@@ -90,7 +90,7 @@ class GetAllAcceptedReportsView(APIView):
 
 # --------admin accept report---------
 class AdminAcceptReportView(APIView):
-    def put(self, request, pk):
+    def post(self, request, pk):
         report = get_object_or_404(Report, pk=pk)
         report.status = 'accepted'
         report.save()
@@ -101,7 +101,7 @@ class AdminAcceptReportView(APIView):
         
 # --------admin solve report---------
 class AdminSolveReportView(APIView):
-    def put(self, request, pk):
+    def post(self, request, pk):
         report = get_object_or_404(Report, pk=pk)
         report.status = 'solved'
         report.save()
@@ -112,7 +112,7 @@ class AdminSolveReportView(APIView):
         
 # --------admin reject report---------
 class AdminRejectReportView(APIView):
-    def put(self, request, pk):
+    def post(self, request, pk):
         report = get_object_or_404(Report, pk=pk)
         report.status = 'rejected'
         report.save()

@@ -63,6 +63,8 @@ REST_FRAMEWORK = {
 }
 
 
+
+
 ROOT_URLCONF = "safepath.urls"
 
 TEMPLATES = [
