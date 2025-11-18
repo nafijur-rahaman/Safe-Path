@@ -17,7 +17,11 @@ const dummyHotspots = [
     incidentType: "physical_assault",
     description: "Person was shoved by shopkeeper",
     dateTime: "2025-11-17T17:37",
-    location: { latitude: 23.81443, longitude: 90.35582, displayName: "23.80597, 90.36778" },
+    location: {
+      latitude: 23.81443,
+      longitude: 90.35582,
+      displayName: "23.80597, 90.36778",
+    },
     reporter: { anonymous: true },
     submittedAt: "2025-11-17T11:37:29.315Z",
     status: "pending",
@@ -27,7 +31,11 @@ const dummyHotspots = [
     incidentType: "verbal_harassment",
     description: "Inappropriate remarks by bus conductor",
     dateTime: "2025-11-16T09:15",
-    location: { latitude: 23.7801, longitude: 90.4072, displayName: "23.7801, 90.4072" },
+    location: {
+      latitude: 23.7801,
+      longitude: 90.4072,
+      displayName: "23.7801, 90.4072",
+    },
     reporter: { anonymous: true },
     submittedAt: "2025-11-16T08:50:29.315Z",
     status: "resolved",
@@ -37,7 +45,11 @@ const dummyHotspots = [
     incidentType: "unsafe_area",
     description: "Dark pathway, no lights",
     dateTime: "2025-11-15T21:15",
-    location: { latitude: 23.7935, longitude: 90.4183, displayName: "Gulshan Lake Park" },
+    location: {
+      latitude: 23.7935,
+      longitude: 90.4183,
+      displayName: "Gulshan Lake Park",
+    },
     reporter: { anonymous: true },
     submittedAt: "2025-11-15T20:50:29.315Z",
     status: "in_progress",
@@ -53,38 +65,45 @@ function FlyToLocation({ position, zoom = 16 }) {
   return null;
 }
 
-// MapView Component
 function MapView({ selectedLocation }) {
   const [currentLocation, setCurrentLocation] = useState(null);
   const mapRef = useRef(null);
 
-  // Initial location
   useEffect(() => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       (pos) => setCurrentLocation([pos.coords.latitude, pos.coords.longitude]),
-      () => setCurrentLocation([23.8103, 90.4125]) // fallback Dhaka
+      () => setCurrentLocation([23.8103, 90.4125])
     );
   }, []);
 
-  // Locate button handler
   const goToCurrentLocation = () => {
     if (!navigator.geolocation || !mapRef.current) return;
+
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const coords = [pos.coords.latitude, pos.coords.longitude];
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const coords = [latitude, longitude];
+
         setCurrentLocation(coords);
-        mapRef.current.flyTo(coords, 16);
+        mapRef.current.flyTo(coords, 16, { duration: 1.5 });
       },
-      (err) => console.log(err)
+      (error) => {
+        console.error("Error getting location:", error);
+        alert("Unable to get your current location.");
+      }
     );
   };
 
   if (!currentLocation)
-    return <div className="flex items-center justify-center h-full">Loading map...</div>;
+    return (
+      <div className="flex items-center justify-center h-full">
+        Loading map...
+      </div>
+    );
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full overflow-hidden">
       <MapContainer
         center={currentLocation}
         zoom={14}
@@ -93,15 +112,12 @@ function MapView({ selectedLocation }) {
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-        {/* Fly to selected report */}
         {selectedLocation && <FlyToLocation position={selectedLocation} />}
 
-        {/* Current location marker */}
         <Marker position={currentLocation}>
           <Popup>You are here!</Popup>
         </Marker>
 
-        {/* Hotspot circles */}
         {dummyHotspots.map((report) => (
           <Circle
             key={report.id}
@@ -120,21 +136,18 @@ function MapView({ selectedLocation }) {
             <Popup>
               <div className="font-sans">
                 <h3 className="font-bold text-md">{report.incidentType}</h3>
-                <p className="text-sm text-gray-700">{report.location.displayName}</p>
-                <p className="text-xs text-gray-500 mt-1">{new Date(report.dateTime).toLocaleString()}</p>
-                <p className="mt-2">{report.description}</p>
-                <p className="mt-1 text-sm text-gray-500">Status: {report.status}</p>
+                <p className="text-sm">{report.location.displayName}</p>
               </div>
             </Popup>
           </Circle>
         ))}
       </MapContainer>
 
-      {/* Locate Button: absolutely positioned outside MapContainer */}
       <button
+        id="locate-btn"
         onClick={goToCurrentLocation}
         className="absolute bottom-4 left-4 z-[1000] bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-lg"
-        title="My current location"
+        title="Current Location"
       >
         <LocateFixed size={20} />
       </button>
@@ -149,9 +162,12 @@ export default function LiveDashboard() {
   return (
     <section id="live-dashboard" className="py-24 bg-white">
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-bold text-center mb-4">Live Safety Dashboard</h2>
+        <h2 className="text-4xl font-bold text-center mb-4">
+          Live Safety Dashboard
+        </h2>
         <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-          This map and feed are generated 100% from anonymous user reports. See the patterns as they emerge.
+          This map and feed are generated 100% from anonymous user reports. See
+          the patterns as they emerge.
         </p>
 
         <div className="flex flex-col lg:flex-row gap-8 w-full h-[70vh] max-h-[800px]">
@@ -164,19 +180,27 @@ export default function LiveDashboard() {
           <div className="lg:w-1/3 h-full flex flex-col gap-8">
             {/* Legend */}
             <div className="bg-gray-50 p-6 rounded-xl shadow-lg border border-gray-200">
-              <h3 className="text-2xl font-semibold mb-4 text-gray-900">Map Legend</h3>
+              <h3 className="text-2xl font-semibold mb-4 text-gray-900">
+                Map Legend
+              </h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-red-500 opacity-50 border border-red-300"></div>
-                  <span className="text-gray-600">Pending / High Report Area</span>
+                  <span className="text-gray-600">
+                    Pending / High Report Area
+                  </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-orange-500 opacity-50 border border-orange-300"></div>
-                  <span className="text-gray-600">In Progress / Medium Report Area</span>
+                  <span className="text-gray-600">
+                    In Progress / Medium Report Area
+                  </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-green-500 opacity-50 border border-green-300"></div>
-                  <span className="text-gray-600">Resolved / Low Report Area</span>
+                  <span className="text-gray-600">
+                    Resolved / Low Report Area
+                  </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <img
@@ -191,7 +215,9 @@ export default function LiveDashboard() {
 
             {/* Live Feed */}
             <div className="bg-gray-50 p-6 rounded-xl shadow-lg border border-gray-200 flex-1 overflow-y-auto">
-              <h3 className="text-2xl font-semibold mb-5 text-gray-900">Recent Anonymous Reports</h3>
+              <h3 className="text-2xl font-semibold mb-5 text-gray-900">
+                Recent Anonymous Reports
+              </h3>
               <div className="space-y-5">
                 {dummyHotspots
                   .sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime))
@@ -199,7 +225,10 @@ export default function LiveDashboard() {
                     <div
                       key={report.id}
                       onClick={() =>
-                        setSelectedLocation([report.location.latitude, report.location.longitude])
+                        setSelectedLocation([
+                          report.location.latitude,
+                          report.location.longitude,
+                        ])
                       }
                       className="cursor-pointer hover:bg-gray-100 transition-all flex items-start gap-4 p-4 bg-white rounded-lg border border-gray-200 shadow-sm"
                     >
@@ -216,12 +245,16 @@ export default function LiveDashboard() {
                         />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-900">{report.incidentType.replace("_", " ")}</h4>
+                        <h4 className="font-semibold text-gray-900">
+                          {report.incidentType.replace("_", " ")}
+                        </h4>
                         <p className="text-sm text-gray-500 flex items-center gap-2">
                           <Clock size={14} />
                           {new Date(report.dateTime).toLocaleString()}
                         </p>
-                        <p className="text-sm text-gray-600 mt-1">{report.description}</p>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {report.description}
+                        </p>
                       </div>
                     </div>
                   ))}
