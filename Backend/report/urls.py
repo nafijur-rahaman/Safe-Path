@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ReportView, AdminAcceptReportView,AdminSolveReportView,AdminRejectReportView,GetAllAcceptedReportsView,ReportStatisticsView
+from .views import ReportView, AdminAcceptReportView,AdminSolveReportView,AdminRejectReportView,GetAllAcceptedReportsView,ReportStatisticsView,DashboardSummaryView
 
 urlpatterns = [
     
@@ -19,6 +19,10 @@ urlpatterns = [
     path('admin/report/<int:pk>/accept/', AdminAcceptReportView.as_view(), name='admin-accept-report'),
     path('admin/report/<int:pk>/solve/', AdminSolveReportView.as_view(), name='admin-solve-report'),
     path('admin/report/<int:pk>/reject/', AdminRejectReportView.as_view(), name='admin-reject-report'),
+    
+    
+    #dashboard summary
+    path('admin/dashboard/summary/', DashboardSummaryView.as_view(), name='admin-dashboard-summary'),
     
     
     

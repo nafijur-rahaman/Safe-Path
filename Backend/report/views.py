@@ -8,6 +8,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
+from django.db.models import Count
 
 #local imports
 from .serializers import LocationSerializer, ReportSerializer
@@ -144,3 +145,40 @@ class ReportStatisticsView(APIView):
                 "rejected_reports": rejected_reports,
             }
         }, status=status.HTTP_200_OK)
+        
+        
+        
+        
+#-----------------Report summary view-----------------#
+
+
+class DashboardSummaryView(APIView):
+    """
+    Provides data for admin dashboard:
+    - Total reports
+    - Reports count by status
+    - Reports count by incident type
+    - Recent 5 reports
+    """
+
+    def get(self, request):
+        total_reports = Report.objects.count()
+
+        # Count by status
+        status_counts = Report.objects.values('status').annotate(count=Count('status'))
+        status_summary = {item['status']: item['count'] for item in status_counts}
+
+        # Count by incident type
+        type_counts = Report.objects.values('incident_type').annotate(count=Count('incident_type'))
+        type_summary = {item['incident_type']: item['count'] for item in type_counts}
+
+        # Recent reports
+        recent_reports = Report.objects.select_related('location').order_by('-submitted_at')[:5]
+        recent_serializer = ReportSerializer(recent_reports, many=True)
+
+        return Response({
+            "total_reports": total_reports,
+            "status_summary": status_summary,
+            "type_summary": type_summary,
+            "recent_reports": recent_serializer.data,
+        })
