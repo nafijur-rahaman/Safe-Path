@@ -30,7 +30,7 @@ export default function Tips() {
 
   return (
     <div className="p-6 mt-20 md:p-10 min-h-screen ">
-      <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+      <h1 className="text-3xl md:text-4xl font-bold text-indigo-600 mb-6">
         Safety & Awareness Tips
       </h1>
       <p className="text-gray-600 mb-8">

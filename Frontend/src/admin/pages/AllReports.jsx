@@ -76,8 +76,8 @@ const AllReports = () => {
     <div className="p-8">
       {/* Header */}
       <div className="mb-10">
-        <h1 className="text-4xl font-extrabold bg-gradient-to-r from-red-600 to-pink-500 bg-clip-text text-transparent">
-          All Incident Reports
+        <h1 className="text-3xl font-bold text-gray-900 bg-clip-text">
+          Report Managements
         </h1>
         <p className="text-gray-500 mt-2">
           Review and monitor all user-submitted harassment reports.

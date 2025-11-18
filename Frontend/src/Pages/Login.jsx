@@ -14,9 +14,9 @@ export default function Login() {
     const password = e.target.password.value;
     const res = await login(username, password);
     if (res) {
-      navigate("/admin/dashboard");
+      navigate("/admin-dashboard");
       Swal.fire({
-        position: "top-end",
+        position: "middle",
         icon: "success",
         title: "Login successful",
         showConfirmButton: false,

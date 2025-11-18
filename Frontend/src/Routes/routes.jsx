@@ -3,7 +3,6 @@ import RootLayout from "../Layout/RootLayout";
 import HomePage from "../Pages/HomePage";
 import Complaints from "../Pages/Complaints";
 import ReportComplaint from "../Pages/ReportComplaint";
-import Stories from "../Pages/Stories"
 import Login from "../Pages/Login";
 import AdminLayout from "../admin/AdminLayout";
 import Dashboard from "../admin/pages/Dashboard";
@@ -28,10 +27,6 @@ export const router = createBrowserRouter([
       {
         path: "report",
         element: <ReportComplaint />
-      },
-      {
-        path: "stories",
-        element: <Stories />
       },{
         path: "tips",
         element: <Tips />

@@ -159,7 +159,7 @@ export default function LiveDashboard() {
   return (
     <section className="py-24 bg-gray-50 min-h-screen">
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-bold text-center mb-4">Live Safety Dashboard</h2>
+        <h2 className="text-4xl font-bold text-indigo-600 text-center mb-4">Live Safety Dashboard</h2>
         <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
           This map shows accepted and solved reports only. Click a report to navigate its location. Your location is also shown.
         </p>

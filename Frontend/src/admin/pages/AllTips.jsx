@@ -78,8 +78,8 @@ const AllTips = () => {
     <div className="p-8 space-y-8">
       {/* Header + Add Tip */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-red-500 bg-clip-text text-transparent">
-          Safety Tips Admin
+        <h1 className="text-3xl font-bold text-gray-900 bg-clip-text">
+          Safety Tips Managements
         </h1>
         <button
           onClick={() => openModal()}

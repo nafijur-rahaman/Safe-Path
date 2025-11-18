@@ -6,7 +6,7 @@ export default function ProblemOfSilence() {
       <div className="container mx-auto px-4 max-w-5xl">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-indigo-600">
+          <h2 className="text-4xl font-bold text-indigo-600 text-center mb-4">
             The Problem of Silence
           </h2>
           <p className="mt-4 text-gray-500 max-w-2xl mx-auto">
@@ -58,7 +58,7 @@ export default function ProblemOfSilence() {
 
         {/* Highlighted Quote */}
         <div className="mt-16 text-center max-w-3xl mx-auto">
-          <blockquote className="text-xl md:text-2xl font-semibold text-gray-900 italic border-l-4 border-pink-500 pl-6">
+          <blockquote className="text-4xl font-bold text-indigo-600 text-center mb-4">
             “The problem isn’t just the harassment — it’s the lack of visibility.”
           </blockquote>
         </div>
