@@ -25,6 +25,8 @@ import {
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useAuth } from "../context/AuthContext";
+import Swal from "sweetalert2";
+
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -179,49 +181,72 @@ export default function ReportComplaint() {
     fetchReports();
   }, [fetchReports]);
 
-  const handleSubmit = async () => {
-    if (!formData.incidentType || !formData.dateTime || !formData.description) {
-      return alert("Please fill all required fields.");
-    }
+const handleSubmit = async () => {
+  if (!formData.incidentType || !formData.dateTime || !formData.description) {
+    return Swal.fire({
+      icon: "warning",
+      title: "Missing Info",
+      text: "Please fill all required fields.",
+    });
+  }
 
-    const payload = {
-      incident_type: formData.incidentType,
-      description: formData.description,
-      date_time: formData.dateTime,
-      location: {
-        latitude: coords[0],
-        longitude: coords[1],
-        display_name: formData.location,
-      },
-      status: "pending",
-    };
-
-    setLoading(true);
-    try {
-      if (editingReport) {
-        await api.put(`/report/${editingReport.id}/update/`, payload);
-        alert("Report updated successfully!");
-      } else {
-        await api.post("/report/create/", payload);
-        alert("Report submitted successfully!");
-      }
-
-      setFormData({
-        incidentType: "",
-        dateTime: "",
-        description: "",
-        location: "",
-      });
-      setStep(1);
-      setEditingReport(null);
-      fetchReports();
-    } catch (err) {
-      console.error(err.response?.data || err.message);
-      alert("Failed to submit report.");
-    } finally {
-      setLoading(false);
-    }
+  const payload = {
+    incident_type: formData.incidentType,
+    description: formData.description,
+    date_time: formData.dateTime,
+    location: {
+      latitude: coords[0],
+      longitude: coords[1],
+      display_name: formData.location,
+    },
+    status: "pending",
   };
+
+  Swal.fire({
+    title: "Submitting...",
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading(),
+  });
+
+  try {
+    if (editingReport) {
+      await api.put(`/report/${editingReport.id}/update/`, payload);
+      Swal.fire({
+        icon: "success",
+        title: "Updated!",
+        text: "Report updated successfully!",
+      });
+    } else {
+      await api.post("/report/create/", payload);
+      Swal.fire({
+        icon: "success",
+        title: "Submitted!",
+        text: "Report submitted successfully!",
+      });
+    }
+
+    setFormData({
+      incidentType: "",
+      dateTime: "",
+      description: "",
+      location: "",
+    });
+
+    setStep(1);
+    setEditingReport(null);
+    fetchReports();
+  } catch (err) {
+    console.error(err.response?.data || err.message);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Failed to submit report.",
+    });
+  } finally {
+    Swal.close();
+  }
+};
+
 
   const handleDelete = async (reportId) => {
     if (!window.confirm("Are you sure you want to delete this report?")) return;
@@ -349,7 +374,7 @@ export default function ReportComplaint() {
                       <option value="" disabled>
                         Select a type...
                       </option>
-                      <option value="verbal_harassment">
+                      <option value="verbal">
                         Verbal Harassment
                       </option>
                       <option value="physical_assault">Physical Assault</option>
