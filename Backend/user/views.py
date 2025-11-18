@@ -7,7 +7,7 @@ from rest_framework import status
 from django.contrib.auth import authenticate
 
 
-
+#-----------------user login view-----------------#
 class UserLoginView(APIView):
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
@@ -17,6 +17,10 @@ class UserLoginView(APIView):
             user = authenticate(username=username, password=password)
             if user:
                 token, created = Token.objects.get_or_create(user=user)
-                return Response({'token': token.key}, status=status.HTTP_200_OK)
+                return Response({
+                    "success":True,
+                    'token': token.key}, status=status.HTTP_200_OK)
+            
+            
             return Response({'error': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
