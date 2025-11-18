@@ -9,16 +9,14 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const email = e.target.email.value;
+    const username = e.target.username.value;
     const password = e.target.password.value;
-    const res = await login(email, password);
-    console.log(res);
-    if (res.success) {
-      alert("Login Successful");
+    const res = await login(username, password);
+    if (res) {
       navigate("/admin/dashboard");
-
-    }else {
-      alert("Login Failed: " + res.message);
+      alert("Login successful!");
+    } else {
+      alert("Login failed. Please check your credentials.");
     }
   };
 
@@ -40,13 +38,14 @@ export default function Login() {
         <form onSubmit={handleLogin} className="space-y-6">
           {/* Email */}
           <div>
-            <label className="text-gray-300 text-sm mb-2 block">Email</label>
+            <label className="text-gray-300 text-sm mb-2 block">UserName</label>
             <div className="flex items-center bg-white/5 border border-white/10 rounded-xl px-3">
               <Mail className="text-gray-400" size={20} />
               <input
-                type="email"
+                type="text"
                 className="w-full bg-transparent p-3 focus:outline-none text-white placeholder-gray-500"
-                placeholder="admin@example.com"
+                placeholder="Enter Your UserName"
+                name="username"
               />
             </div>
           </div>
@@ -60,6 +59,7 @@ export default function Login() {
                 type="password"
                 className="w-full bg-transparent p-3 focus:outline-none text-white placeholder-gray-500"
                 placeholder="••••••••"
+                name="password"
               />
             </div>
           </div>
