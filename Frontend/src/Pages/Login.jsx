@@ -2,6 +2,7 @@ import React from "react";
 import { Lock, Mail, LogIn, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext";
+import Swal from "sweetalert2";
 
 export default function Login() {
   const { login } = useAuth();
@@ -14,9 +15,19 @@ export default function Login() {
     const res = await login(username, password);
     if (res) {
       navigate("/admin/dashboard");
-      alert("Login successful!");
+      Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Login successful",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } else {
-      alert("Login failed. Please check your credentials.");
+      Swal.fire({
+        icon: "error",
+        title: "Login failed",
+        text: "Invalid username or password",
+      });
     }
   };
 

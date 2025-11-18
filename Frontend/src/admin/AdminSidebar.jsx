@@ -1,4 +1,4 @@
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import {
   LayoutDashboard,
   AlertTriangle,
@@ -7,8 +7,21 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 export default function AdminSidebar() {
+  const navigate = useNavigate();
+
+  const { logout } = useAuth();
+
+const handleLogout = async () => {
+  const res = await logout();
+  if (res) {
+    navigate("/admin-login");
+  }
+};
+
+
   const base =
     "flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 transition-all duration-300";
   const active =
@@ -70,7 +83,7 @@ export default function AdminSidebar() {
 
       {/* Logout */}
       <div className="px-6 mt-6">
-        <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-xl transition cursor-pointer">
+        <button onClick={()=>handleLogout()} className="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-xl transition cursor-pointer">
           <LogOut size={20} />
           Logout
         </button>

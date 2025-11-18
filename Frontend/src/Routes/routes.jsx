@@ -9,6 +9,7 @@ import AdminLayout from "../admin/AdminLayout";
 import Dashboard from "../admin/pages/Dashboard";
 import AllReports from "../admin/pages/AllReports";
 import AllTips from "../admin/pages/AllTips";
+import PrivateRoute from "../context/PrivateRoute";
 
 export const router = createBrowserRouter([
   {
@@ -35,17 +36,25 @@ export const router = createBrowserRouter([
   },
     {
       path: "/admin",
-      element:<AdminLayout></AdminLayout>,
+      element:<PrivateRoute>
+        <AdminLayout/>
+      </PrivateRoute>,
       children:[
         {
           path:"dashboard",
-          element:<Dashboard/>
+          element:<PrivateRoute>
+            <Dashboard/>
+          </PrivateRoute>
         },{
           path:"all-reports",
-          element:<AllReports></AllReports>
+          element:<PrivateRoute>
+            <AllReports></AllReports>
+          </PrivateRoute>
         },{
           path:"all-tips",
-          element: <AllTips></AllTips>
+          element: <PrivateRoute>
+            <AllTips></AllTips>
+          </PrivateRoute>
         }
       ]
 
