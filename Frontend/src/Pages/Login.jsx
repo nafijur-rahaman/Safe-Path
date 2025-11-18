@@ -1,21 +1,30 @@
 import React from "react";
 import { Lock, Mail, LogIn, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
-const navigate = useNavigate();
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-    const handleLogin = (e) => {
-        e.preventDefault();
-        navigate('/admin/dashboard');
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+    const res = await login(email, password);
+    console.log(res);
+    if (res.success) {
+      alert("Login Successful");
+      navigate("/admin/dashboard");
+
+    }else {
+      alert("Login Failed: " + res.message);
     }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-900 px-4">
-      
-
       <div className="w-full max-w-md bg-white/10 backdrop-blur-xl rounded-2xl p-10 shadow-2xl border border-white/10">
-        
         {/* Header */}
         <div className="flex flex-col items-center mb-8">
           <ShieldCheck size={50} className="text-red-400" />
@@ -29,7 +38,6 @@ const navigate = useNavigate();
 
         {/* Form */}
         <form onSubmit={handleLogin} className="space-y-6">
-          
           {/* Email */}
           <div>
             <label className="text-gray-300 text-sm mb-2 block">Email</label>
@@ -64,26 +72,6 @@ const navigate = useNavigate();
             <LogIn size={20} /> Login
           </button>
         </form>
-
-        {/* OR */}
-        <div className="flex items-center my-6">
-          <div className="h-px bg-white/20 w-full"></div>
-          <span className="text-gray-400 text-sm mx-3">OR</span>
-          <div className="h-px bg-white/20 w-full"></div>
-        </div>
-
-        {/* Google Sign In */}
-        <button
-          className="w-full flex items-center justify-center gap-3 bg-white text-gray-800 py-3 rounded-xl font-semibold hover:bg-gray-100 transition shadow-lg"
-        >
-          <img
-            src="https://www.svgrepo.com/show/475656/google-color.svg"
-            alt="Google"
-            className="w-6 h-6"
-          />
-          Sign in with Google
-        </button>
-
       </div>
     </div>
   );
