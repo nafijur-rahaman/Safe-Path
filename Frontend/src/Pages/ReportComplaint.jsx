@@ -306,165 +306,190 @@ export default function ReportComplaint() {
           </MapContainer>
         </div>
 
-        {/* FORM + REPORT LIST */}
-        <div className="w-full lg:w-2/5 flex flex-col gap-6">
-          <div className="bg-white p-8 shadow-2xl rounded-2xl flex flex-col lg:h-[90vh]">
-            <h1 className="text-3xl font-bold mb-2">{editingReport ? "Edit Report" : "Report an Incident"}</h1>
-            <p className="text-gray-600 mb-8">Your report is 100% anonymous.</p>
+{/* FORM + REPORT LIST */}
+<div className="w-full lg:w-2/5 flex flex-col gap-6">
 
-            <Stepper currentStep={step} />
+  <div className="bg-white p-6 md:p-8 shadow-xl rounded-2xl flex flex-col
+                  max-h-[90vh] overflow-y-auto">
 
-            <div className="flex flex-col flex-1">
-              <AnimatePresence mode="wait">
-                {/* STEP 1 */}
-                {step === 1 && (
-                  <motion.div
-                    key="step1"
-                    variants={stepVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="space-y-6 flex flex-col h-full"
-                  >
-                    <IconSelect
-                      label="Incident Type"
-                      name="incidentType"
-                      value={formData.incidentType}
-                      onChange={(e) => setFormData({ ...formData, incidentType: e.target.value })}
-                      icon={<List size={18} />}
-                    >
-                      <option value="" disabled>Select a type...</option>
-                      <option value="verbal_harassment">Verbal Harassment</option>
-                      <option value="physical_assault">Physical Assault</option>
-                      <option value="discrimination">Discrimination</option>
-                      <option value="stalking">Stalking</option>
-                      <option value="unsafe_area">Unsafe Area</option>
-                      <option value="other">Other</option>
-                    </IconSelect>
+    <h1 className="text-2xl md:text-3xl font-bold mb-2">
+      {editingReport ? "Edit Report" : "Report an Incident"}
+    </h1>
 
-                    <IconTextarea
-                      label="Description"
-                      name="description"
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      placeholder="Describe what happened..."
-                      icon={<FileText size={18} />}
-                    />
+    <p className="text-gray-600 mb-6">
+      Your report is 100% anonymous.
+    </p>
 
-                    <div className="mt-auto pt-6 border-t flex justify-between">
-                      <div></div>
-                      <button onClick={nextStep} className="px-5 py-2.5 bg-blue-600 text-white rounded-lg flex items-center gap-2">
-                        Next <ArrowRight size={16} />
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
+    <Stepper currentStep={step} />
 
-                {/* STEP 2 */}
-                {step === 2 && (
-                  <motion.div
-                    key="step2"
-                    variants={stepVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="space-y-6 flex flex-col h-full"
-                  >
-                    <IconInput
-                      label="Date & Time"
-                      name="dateTime"
-                      type="datetime-local"
-                      value={formData.dateTime}
-                      onChange={(e) => setFormData({ ...formData, dateTime: e.target.value })}
-                      icon={<Calendar size={18} />}
-                    />
+    <div className="flex flex-col flex-1 mt-6 space-y-6">
+      <AnimatePresence mode="wait">
 
-                    <div>
-                      <label className="block mb-2 text-sm font-medium">Location</label>
-                      <p className="text-xs text-gray-500 mb-3">Click map, search, or use current location.</p>
+        {/* STEP 1 */}
+        {step === 1 && (
+          <motion.div
+            key="step1"
+            variants={stepVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="space-y-6"
+          >
+            <IconSelect
+              label="Incident Type"
+              name="incidentType"
+              value={formData.incidentType}
+              onChange={(e) => setFormData({ ...formData, incidentType: e.target.value })}
+              icon={<List size={18} />}
+            >
+              <option value="" disabled>Select a type...</option>
+              <option value="verbal_harassment">Verbal Harassment</option>
+              <option value="physical_assault">Physical Assault</option>
+              <option value="discrimination">Discrimination</option>
+              <option value="stalking">Stalking</option>
+              <option value="unsafe_area">Unsafe Area</option>
+              <option value="other">Other</option>
+            </IconSelect>
 
-                      <div className="flex space-x-2 mb-2">
-                        <input
-                          type="text"
-                          placeholder="Search address..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                          className="flex-1 px-4 py-2 border rounded-lg"
-                        />
-                        <button onClick={handleSearch} className="bg-blue-600 text-white p-3 rounded-lg">
-                          <Search size={18} />
-                        </button>
-                        <button onClick={goToCurrentLocation} className="bg-green-600 text-white p-3 rounded-lg">
-                          <LocateFixed size={18} />
-                        </button>
-                      </div>
+            <IconTextarea
+              label="Description"
+              name="description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Describe what happened..."
+              icon={<FileText size={18} />}
+            />
 
-                      <IconInput
-                        name="location"
-                        value={formData.location}
-                        icon={<MapPin size={18} />}
-                        readOnly
-                        placeholder="Location will appear here"
-                        isReadOnly
-                      />
-                    </div>
-
-                    <div className="mt-auto pt-6 border-t flex justify-between">
-                      <button onClick={prevStep} className="px-5 py-2.5 rounded-lg flex items-center gap-2 border bg-white border-gray-300 hover:bg-gray-100">
-                        <ArrowLeft size={16} /> Back
-                      </button>
-
-                      <button onClick={nextStep} className="px-5 py-2.5 bg-blue-600 text-white rounded-lg flex items-center gap-2">
-                        Next <ArrowRight size={16} />
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* STEP 3 */}
-                {step === 3 && (
-                  <motion.div
-                    key="step3"
-                    variants={stepVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="space-y-6 flex flex-col h-full"
-                  >
-                    <h3 className="text-xl font-semibold">Review Information</h3>
-
-                    <div className="flex items-center gap-3 bg-blue-50 text-blue-800 p-4 rounded-lg border">
-                      <Shield size={24} />
-                      <span>Your report is anonymous. Please confirm details.</span>
-                    </div>
-
-                    <dl className="space-y-4 border rounded-lg p-4 bg-gray-50">
-                      <InfoRow label="Type" value={formData.incidentType} />
-                      <InfoRow label="Date/Time" value={formData.dateTime ? new Date(formData.dateTime).toLocaleString() : "N/A"} />
-                      <InfoRow label="Location" value={formData.location} />
-                      <div>
-                        <dt className="font-medium text-gray-600">Description</dt>
-                        <dd className="p-2 bg-white rounded">{formData.description || "N/A"}</dd>
-                      </div>
-                    </dl>
-
-                    <div className="mt-auto pt-6 border-t flex justify-between">
-                      <button onClick={prevStep} className="px-5 py-2.5 rounded-lg flex items-center gap-2 border bg-white border-gray-300 hover:bg-gray-100">
-                        <ArrowLeft size={16} /> Back
-                      </button>
-
-                      <button onClick={handleSubmit} className="px-5 py-2.5 bg-green-600 text-white rounded-lg flex items-center gap-2">
-                        <Shield size={16} /> {editingReport ? "Update" : "Submit"}
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+            <div className="pt-4 flex justify-end">
+              <button
+                onClick={nextStep}
+                className="px-5 py-2.5 bg-blue-600 text-white rounded-lg flex items-center gap-2"
+              >
+                Next <ArrowRight size={16} />
+              </button>
             </div>
-          </div>
+          </motion.div>
+        )}
 
-        </div>
+        {/* STEP 2 */}
+        {step === 2 && (
+          <motion.div
+            key="step2"
+            variants={stepVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="space-y-6"
+          >
+            <IconInput
+              label="Date & Time"
+              name="dateTime"
+              type="datetime-local"
+              value={formData.dateTime}
+              onChange={(e) => setFormData({ ...formData, dateTime: e.target.value })}
+              icon={<Calendar size={18} />}
+            />
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium">Location</label>
+              <p className="text-xs text-gray-500">Click map, search, or use current location.</p>
+
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  placeholder="Search address..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                  className="flex-1 px-4 py-2 border rounded-lg"
+                />
+                <button onClick={handleSearch} className="bg-blue-600 text-white p-3 rounded-lg">
+                  <Search size={18} />
+                </button>
+                <button onClick={goToCurrentLocation} className="bg-green-600 text-white p-3 rounded-lg">
+                  <LocateFixed size={18} />
+                </button>
+              </div>
+
+              <IconInput
+                name="location"
+                value={formData.location}
+                icon={<MapPin size={18} />}
+                readOnly
+                placeholder="Location will appear here"
+                isReadOnly
+              />
+            </div>
+
+            <div className="pt-4 flex justify-between">
+              <button
+                onClick={prevStep}
+                className="px-5 py-2.5 border bg-white border-gray-300 hover:bg-gray-100 rounded-lg flex items-center gap-2"
+              >
+                <ArrowLeft size={16} /> Back
+              </button>
+
+              <button
+                onClick={nextStep}
+                className="px-5 py-2.5 bg-blue-600 text-white rounded-lg flex items-center gap-2"
+              >
+                Next <ArrowRight size={16} />
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* STEP 3 */}
+        {step === 3 && (
+          <motion.div
+            key="step3"
+            variants={stepVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="space-y-6"
+          >
+            <h3 className="text-xl font-semibold">Review Information</h3>
+
+            <div className="flex items-center gap-3 bg-blue-50 text-blue-800 p-4 rounded-lg border">
+              <Shield size={24} />
+              <span>Your report is anonymous. Please confirm details.</span>
+            </div>
+
+            <dl className="space-y-4 border rounded-lg p-4 bg-gray-50">
+              <InfoRow label="Type" value={formData.incidentType} />
+              <InfoRow label="Date/Time" value={formData.dateTime ? new Date(formData.dateTime).toLocaleString() : "N/A"} />
+              <InfoRow label="Location" value={formData.location} />
+
+              <div>
+                <dt className="font-medium text-gray-600">Description</dt>
+                <dd className="p-3 bg-white rounded">{formData.description || "N/A"}</dd>
+              </div>
+            </dl>
+
+            <div className="pt-4 flex justify-between">
+              <button
+                onClick={prevStep}
+                className="px-5 py-2.5 border bg-white border-gray-300 hover:bg-gray-100 rounded-lg flex items-center gap-2"
+              >
+                <ArrowLeft size={16} /> Back
+              </button>
+
+              <button
+                onClick={handleSubmit}
+                className="px-5 py-2.5 bg-green-600 text-white rounded-lg flex items-center gap-2"
+              >
+                <Shield size={16} /> {editingReport ? "Update" : "Submit"}
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+      </AnimatePresence>
+    </div>
+  </div>
+</div>
+
       </div>
     </div>
   );
