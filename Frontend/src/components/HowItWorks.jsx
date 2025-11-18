@@ -2,7 +2,7 @@ import React from "react";
 import { Megaphone, MapPin, Shield } from "lucide-react";
 
 const FeatureCard = ({ step, icon, title, description }) => (
-  <div className="relative bg-white p-8 rounded-xl shadow-xl border border-gray-200 transform transition-transform hover:scale-105">
+  <div className="relative bg-white p-8 rounded-xl shadow-xl border text-gray-900 border-gray-200 transform transition-transform hover:scale-105">
     
 
     <div className="absolute top-4 right-6 text-8xl font-bold text-gray-100 -z-0">
@@ -15,7 +15,7 @@ const FeatureCard = ({ step, icon, title, description }) => (
         {icon}
       </div>
       <h3 className="text-2xl font-bold mb-3">{title}</h3>
-      <p className="text-gray-600">{description}</p>
+      <p className="text-gray-500">{description}</p>
     </div>
   </div>
 );
@@ -31,10 +31,10 @@ const HowItWorks = () => {
         
         {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-teal-500">
+          <h2 className="text-4xl font-bold bg-clip-text text-indigo-600 ">
             A Simple Path to a Safer Community
           </h2>
-          <p className="text-lg text-gray-600 mt-4 max-w-2xl mx-auto">
+          <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
             Your voice is powerful. Here’s how you can make an immediate impact
             in just three simple steps.
           </p>

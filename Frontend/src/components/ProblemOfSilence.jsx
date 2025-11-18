@@ -6,10 +6,10 @@ export default function ProblemOfSilence() {
       <div className="container mx-auto px-4 max-w-5xl">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-pink-500">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-indigo-600">
             The Problem of Silence
           </h2>
-          <p className="mt-4 text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="mt-4 text-gray-500 max-w-2xl mx-auto">
             Women and girls face harassment in public spaces every single day. Most incidents go unreported due to fear, exhaustion, or normalization.
           </p>
         </div>
