@@ -10,6 +10,7 @@ import Dashboard from "../admin/pages/Dashboard";
 import AllReports from "../admin/pages/AllReports";
 import AllTips from "../admin/pages/AllTips";
 import PrivateRoute from "../context/PrivateRoute";
+import Tips from "../Pages/Tips";
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +32,9 @@ export const router = createBrowserRouter([
       {
         path: "stories",
         element: <Stories />
+      },{
+        path: "tips",
+        element: <Tips />
       }
     ]
   },

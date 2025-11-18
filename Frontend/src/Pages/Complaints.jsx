@@ -14,7 +14,13 @@ import {
   Clock,
   ClipboardList,
 } from "lucide-react";
-import { MapContainer, TileLayer, Marker, CircleMarker, Popup } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  CircleMarker,
+  Popup,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useAuth } from "../context/AuthContext";
@@ -32,7 +38,9 @@ L.Icon.Default.mergeOptions({
 // Helper: Transform API report to dashboard format
 const transformIncident = (incident) => ({
   id: incident.id,
-  type: incident.incident_type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+  type: incident.incident_type
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase()),
   location: incident.location.display_name,
   details: incident.description,
   date: incident.date_time,
@@ -67,9 +75,7 @@ export default function Complaints() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Fetch report statistics
         const statsRes = await api.get("/report/get-report-statistics/");
-        console.log(statsRes);
         if (statsRes.data.success) {
           setStats({
             totalReports: statsRes.data.data.total_reports,
@@ -80,9 +86,7 @@ export default function Complaints() {
           });
         }
 
-        // Fetch accepted reports
         const reportsRes = await api.get("/report/get-all-accepted-reports/");
-        console.log(reportsRes);
         const transformed = reportsRes.data.results.map(transformIncident);
         setIncidents(transformed);
       } catch (err) {
@@ -95,14 +99,15 @@ export default function Complaints() {
 
     fetchData();
   }, [api]);
-console.log(incidents);
+
   const filteredIncidents = useMemo(() => {
     return incidents
       .filter((incident) => {
         const searchMatch =
           incident.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
           incident.details.toLowerCase().includes(searchTerm.toLowerCase());
-        const statusMatch = filterStatus === "All" || incident.status === filterStatus;
+        const statusMatch =
+          filterStatus === "All" || incident.status === filterStatus;
         const typeMatch = filterType === "All" || incident.type === filterType;
         return searchMatch && statusMatch && typeMatch;
       })
@@ -116,16 +121,15 @@ console.log(incidents);
   const handleViewDetails = (incident) => setSelectedIncident(incident);
   const handleCloseModal = () => setSelectedIncident(null);
 
-  if (isLoading) return <IncidentListLoader />;
-  if (error) return <ErrorMessage message={error} />;
-
   return (
-    <div className="flex-1 bg-gray-50 min-h-screen p-6 md:p-10 font-sans">
+    <div className="flex-1 mt-20 min-h-screen p-6 md:p-10 font-sans">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-indigo-600">All Reported Incidents</h1>
-          <p className="text-lg text-gray-500 mt-1">
+          <h1 className="text-4xl font-bold text-gray-900">
+            All Reported Incidents
+          </h1>
+          <p className="text-lg text-gray-600 mt-1">
             View all publicly reported incidents and their status.
           </p>
         </div>
@@ -133,7 +137,9 @@ console.log(incidents);
           <button
             onClick={() => setViewMode("list")}
             className={`flex items-center px-4 py-2 rounded-md font-medium transition-all ${
-              viewMode === "list" ? "bg-white text-indigo-600 shadow" : "text-gray-600 hover:text-gray-900"
+              viewMode === "list"
+                ? "bg-white text-indigo-600 shadow"
+                : "text-gray-600 hover:text-gray-900"
             }`}
           >
             <List size={18} className="mr-2" /> List View
@@ -141,7 +147,9 @@ console.log(incidents);
           <button
             onClick={() => setViewMode("map")}
             className={`flex items-center px-4 py-2 rounded-md font-medium transition-all ${
-              viewMode === "map" ? "bg-white text-indigo-600 shadow" : "text-gray-600 hover:text-gray-900"
+              viewMode === "map"
+                ? "bg-white text-indigo-600 shadow"
+                : "text-gray-600 hover:text-gray-900"
             }`}
           >
             <Map size={18} className="mr-2" /> Map View
@@ -151,9 +159,21 @@ console.log(incidents);
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <StatCard title="Total Reports" value={stats.totalReports} icon={<BarChart className="text-indigo-500" />} />
-        <StatCard title="Reports Pending" value={stats.pendingReports} icon={<AlertOctagon className="text-yellow-500" />} />
-        <StatCard title="Cases Accepted" value={stats.acceptedReports} icon={<CheckCircle className="text-green-500" />} />
+        <StatCard
+          title="Total Reports"
+          value={stats.totalReports}
+          icon={<BarChart className="text-indigo-500" />}
+        />
+        <StatCard
+          title="Reports Pending"
+          value={stats.pendingReports}
+          icon={<AlertOctagon className="text-yellow-500" />}
+        />
+        <StatCard
+          title="Cases Accepted"
+          value={stats.acceptedReports}
+          icon={<CheckCircle className="text-green-500" />}
+        />
       </div>
 
       {/* Filters */}
@@ -171,21 +191,33 @@ console.log(incidents);
             />
           </div>
 
-          <FilterDropdown label="Status" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+          <FilterDropdown
+            label="Status"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
             <option>All</option>
             <option>Pending</option>
             <option>Accepted</option>
             <option>Solved</option>
           </FilterDropdown>
 
-          <FilterDropdown label="Incident Type" value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+          <FilterDropdown
+            label="Incident Type"
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+          >
             <option>All</option>
             <option>Physical Assault</option>
             <option>Verbal Harassment</option>
             <option>Unsafe Area</option>
           </FilterDropdown>
 
-          <FilterDropdown label="Sort By" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+          <FilterDropdown
+            label="Sort By"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
             <option value="latest">Latest</option>
             <option value="oldest">Oldest</option>
           </FilterDropdown>
@@ -194,12 +226,21 @@ console.log(incidents);
 
       {/* Content */}
       {viewMode === "list" ? (
-        <IncidentList incidents={filteredIncidents} onViewDetails={handleViewDetails} />
+        <IncidentList
+          incidents={filteredIncidents}
+          onViewDetails={handleViewDetails}
+          isLoading={isLoading}
+        />
       ) : (
         <IncidentMap incidents={filteredIncidents} />
       )}
 
-      {selectedIncident && <IncidentDetailModal incident={selectedIncident} onClose={handleCloseModal} />}
+      {selectedIncident && (
+        <IncidentDetailModal
+          incident={selectedIncident}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   );
 }
@@ -233,20 +274,32 @@ function FilterDropdown({ label, value, onChange, children }) {
   );
 }
 
-function IncidentList({ incidents, onViewDetails }) {
-  if (!incidents.length)
+function IncidentList({ incidents, onViewDetails, isLoading }) {
+  if (!incidents.length && !isLoading)
     return (
       <div className="text-center py-10 bg-white rounded-xl shadow-sm">
         <p className="text-lg text-gray-500">No incidents found.</p>
-        <p className="text-sm text-gray-400 mt-2">Try adjusting your search or filters.</p>
+        <p className="text-sm text-gray-400 mt-2">
+          Try adjusting your search or filters.
+        </p>
       </div>
     );
 
+  const cardsToShow = isLoading ? [...Array(6)] : incidents;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {incidents.map((incident) => (
-        <IncidentCard key={incident.id} incident={incident} onViewDetails={onViewDetails} />
-      ))}
+      {cardsToShow.map((incident, i) =>
+        isLoading ? (
+          <SkeletonCard key={i} />
+        ) : (
+          <IncidentCard
+            key={incident.id}
+            incident={incident}
+            onViewDetails={onViewDetails}
+          />
+        )
+      )}
     </div>
   );
 }
@@ -256,11 +309,14 @@ function IncidentCard({ incident, onViewDetails }) {
     <div className="bg-white rounded-2xl shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl overflow-hidden flex flex-col justify-between">
       <div className="p-6">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-xl font-semibold text-gray-800">{incident.type}</h3>
+          <h3 className="text-xl font-semibold text-gray-800">
+            {incident.type}
+          </h3>
           <StatusBadge status={incident.status} />
         </div>
         <p className="text-sm text-gray-500 mb-4">
-          <span className="font-medium text-gray-600">Location:</span> {incident.location}
+          <span className="font-medium text-gray-600">Location:</span>{" "}
+          {incident.location}
         </p>
         <p className="text-gray-700 text-sm line-clamp-3">{incident.details}</p>
       </div>
@@ -272,6 +328,24 @@ function IncidentCard({ incident, onViewDetails }) {
           <Eye size={16} className="mr-2" />
           View Details
         </button>
+      </div>
+    </div>
+  );
+}
+
+function SkeletonCard() {
+  return (
+    <div className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse">
+      <div className="p-6">
+        <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
+        <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+        <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+        <div className="h-4 bg-gray-200 rounded w-4/5"></div>
+      </div>
+      <div className="bg-gray-50 p-4 border-t border-gray-100">
+        <div className="h-5 bg-gray-200 rounded w-1/3 mx-auto"></div>
       </div>
     </div>
   );
@@ -295,6 +369,8 @@ function StatusBadge({ status, className = "" }) {
   );
 }
 
+
+
 function IncidentMap({ incidents }) {
   const defaultPosition = [23.8103, 90.4125]; // Dhaka
 
@@ -308,7 +384,12 @@ function IncidentMap({ incidents }) {
 
   return (
     <div className="h-[600px] w-full rounded-2xl shadow-xl overflow-hidden">
-      <MapContainer center={defaultPosition} zoom={12} scrollWheelZoom className="w-full h-full">
+      <MapContainer
+        center={defaultPosition}
+        zoom={12}
+        scrollWheelZoom
+        className="w-full h-full"
+      >
         <TileLayer
           attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -326,12 +407,21 @@ function IncidentMap({ incidents }) {
             >
               <Popup>
                 <div className="font-sans">
-                  <h3 className="font-bold text-md">Hotspot ({reports.length} reports)</h3>
+                  <h3 className="font-bold text-md">
+                    Hotspot ({reports.length} reports)
+                  </h3>
                   {reports.map((r, i) => (
                     <div key={i} className="mt-2 border-t border-gray-200 pt-1">
-                      <p><strong>Type:</strong> {r.type}</p>
-                      <p><strong>Date:</strong> {new Date(r.date).toLocaleString()}</p>
-                      <p><strong>Description:</strong> {r.details}</p>
+                      <p>
+                        <strong>Type:</strong> {r.type}
+                      </p>
+                      <p>
+                        <strong>Date:</strong>{" "}
+                        {new Date(r.date).toLocaleString()}
+                      </p>
+                      <p>
+                        <strong>Description:</strong> {r.details}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -346,24 +436,52 @@ function IncidentMap({ incidents }) {
 
 function IncidentDetailModal({ incident, onClose }) {
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/50" onClick={onClose}>
-      <div className="w-full max-w-lg h-full bg-white shadow-2xl flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-50 flex justify-end bg-black/50"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg h-full bg-white shadow-2xl flex flex-col overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-2xl font-bold text-gray-900">Incident Details</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
             <X size={24} />
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           <div className="grid grid-cols-2 gap-4">
-            <DetailItem icon={<ClipboardList size={18} />} label="Incident Type" value={incident.type} />
-            <DetailItem icon={<Clock size={18} />} label="Date & Time" value={new Date(incident.date).toLocaleString()} />
+            <DetailItem
+              icon={<ClipboardList size={18} />}
+              label="Incident Type"
+              value={incident.type}
+            />
+            <DetailItem
+              icon={<Clock size={18} />}
+              label="Date & Time"
+              value={new Date(incident.date).toLocaleString()}
+            />
           </div>
           <div className="col-span-2">
-            <DetailItem icon={<MapPin size={18} />} label="Location" value={incident.location} />
+            <DetailItem
+              icon={<MapPin size={18} />}
+              label="Location"
+              value={incident.location}
+            />
           </div>
           <div className="h-64 w-full rounded-lg overflow-hidden border">
-            <MapContainer center={incident.coords} zoom={15} className="w-full h-full" scrollWheelZoom={false} dragging={false} zoomControl={false}>
+            <MapContainer
+              center={incident.coords}
+              zoom={15}
+              className="w-full h-full"
+              scrollWheelZoom={false}
+              dragging={false}
+              zoomControl={false}
+            >
               <TileLayer
                 attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -372,16 +490,27 @@ function IncidentDetailModal({ incident, onClose }) {
             </MapContainer>
           </div>
           <div>
-            <h4 className="text-sm font-medium text-gray-500 mb-2">Full Description</h4>
-            <p className="text-gray-800 bg-gray-50 p-4 rounded-lg border">{incident.details}</p>
+            <h4 className="text-sm font-medium text-gray-500 mb-2">
+              Full Description
+            </h4>
+            <p className="text-gray-800 bg-gray-50 p-4 rounded-lg border">
+              {incident.details}
+            </p>
           </div>
           <div>
-            <h4 className="text-sm font-medium text-gray-500 mb-2">Current Status</h4>
+            <h4 className="text-sm font-medium text-gray-500 mb-2">
+              Current Status
+            </h4>
             <StatusBadge status={incident.status} className="text-sm" />
           </div>
         </div>
         <div className="p-6 border-t bg-gray-50 text-right">
-          <button onClick={onClose} className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700">Close</button>
+          <button
+            onClick={onClose}
+            className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>
@@ -406,24 +535,6 @@ function IncidentListLoader() {
       {[...Array(6)].map((_, i) => (
         <SkeletonCard key={i} />
       ))}
-    </div>
-  );
-}
-
-function SkeletonCard() {
-  return (
-    <div className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse">
-      <div className="p-6">
-        <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
-        <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-        <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-        <div className="h-4 bg-gray-200 rounded w-4/5"></div>
-      </div>
-      <div className="bg-gray-50 p-4 border-t border-gray-100">
-        <div className="h-5 bg-gray-200 rounded w-1/3 mx-auto"></div>
-      </div>
     </div>
   );
 }

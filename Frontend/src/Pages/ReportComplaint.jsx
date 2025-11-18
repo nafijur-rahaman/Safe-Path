@@ -20,7 +20,6 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useAuth } from "../context/AuthContext";
 
-// Fix Leaflet default icon
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -31,9 +30,7 @@ L.Icon.Default.mergeOptions({
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-// ---------------------------
-//      Custom Hooks
-// ---------------------------
+
 const useGeoLocation = () => {
   const [coords, setCoords] = useState([23.81033, 90.412521]);
 
@@ -63,9 +60,6 @@ const useReverseGeocode = () => {
   return { fetchAddress };
 };
 
-// ---------------------------
-//     Map Interaction
-// ---------------------------
 function MapEvents({ setPosition, setAddress }) {
   const { fetchAddress } = useReverseGeocode();
 
@@ -89,9 +83,7 @@ function MapFlyTo({ position }) {
   return null;
 }
 
-// ---------------------------
-//       Stepper Component
-// ---------------------------
+
 const Stepper = ({ currentStep }) => {
   const steps = useMemo(
     () => ["Incident Details", "Location & Time", "Review & Submit"],
@@ -141,9 +133,7 @@ const Stepper = ({ currentStep }) => {
   );
 };
 
-// ---------------------------
-//     Main Component
-// ---------------------------
+
 export default function ReportComplaint() {
   const { coords, setCoords } = useGeoLocation();
   const { api } = useAuth();
@@ -171,9 +161,7 @@ export default function ReportComplaint() {
     setFormData((prev) => ({ ...prev, location: address }));
   }, []);
 
-  // ---------------------------
-  // Fetch all reports
-  // ---------------------------
+
   const fetchReports = useCallback(async () => {
     try {
       const res = await api.get("/report/get-all-reports/");
@@ -189,9 +177,7 @@ export default function ReportComplaint() {
     fetchReports();
   }, [fetchReports]);
 
-  // ---------------------------
-  // Submit (Create or Update)
-  // ---------------------------
+
   const handleSubmit = async () => {
     if (!formData.incidentType || !formData.dateTime || !formData.description) {
       return alert("Please fill all required fields.");
@@ -236,9 +222,7 @@ export default function ReportComplaint() {
     }
   };
 
-  // ---------------------------
-  // Delete report
-  // ---------------------------
+
   const handleDelete = async (reportId) => {
     if (!window.confirm("Are you sure you want to delete this report?")) return;
     try {
@@ -251,9 +235,7 @@ export default function ReportComplaint() {
     }
   };
 
-  // ---------------------------
-  // Edit report
-  // ---------------------------
+
   const handleEdit = (report) => {
     setFormData({
       incidentType: report.incident_type,
@@ -266,9 +248,7 @@ export default function ReportComplaint() {
     setEditingReport(report);
   };
 
-  // ---------------------------
-  // Search Address
-  // ---------------------------
+ 
   const handleSearch = useCallback(async () => {
     if (!searchQuery.trim()) return;
     try {
@@ -305,7 +285,7 @@ export default function ReportComplaint() {
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
   return (
-    <div className="w-full min-h-screen p-4 md:p-8 bg-gray-50">
+    <div className="w-full mt-20 min-h-screen p-4 md:p-8 bg-gray-50">
       {loading && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
           <div className="text-white text-lg font-bold">Submitting...</div>
@@ -484,37 +464,13 @@ export default function ReportComplaint() {
             </div>
           </div>
 
-          {/* REPORT LIST */}
-          {/* <div className="bg-white p-6 rounded-xl shadow-md overflow-y-auto max-h-[400px]">
-            <h2 className="text-xl font-semibold mb-4">All Reports</h2>
-            {reports.length === 0 && <p className="text-gray-500">No reports submitted yet.</p>}
-            {reports.map((report) => (
-              <div key={report.id} className="flex justify-between items-center p-3 border-b hover:bg-gray-50 rounded-md">
-                <div className="flex flex-col">
-                  <span className="font-semibold">{report.incident_type.replace("_", " ")}</span>
-                  <span className="text-xs text-gray-500">{new Date(report.date_time).toLocaleString()}</span>
-                  <span className="text-xs text-gray-500">{report.location.display_name}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <button onClick={() => handleEdit(report)} className="p-1 text-blue-600 hover:bg-blue-50 rounded">
-                    <Edit2 size={16} />
-                  </button>
-                  <button onClick={() => handleDelete(report.id)} className="p-1 text-red-600 hover:bg-red-50 rounded">
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div> */}
         </div>
       </div>
     </div>
   );
 }
 
-// ---------------------------
-//    Small Reusable Parts
-// ---------------------------
+
 const InfoRow = ({ label, value }) => (
   <div className="flex justify-between">
     <dt className="font-medium text-gray-600">{label}</dt>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router"; 
+import { href, NavLink } from "react-router"; 
 import {
   Menu,
   X,
@@ -13,6 +13,11 @@ const navItems = [
   { href: "/", label: "Home", icon: <Home size={18} /> },
   { href: "/complaints", label: "All Complaints", icon: <LayoutDashboard size={18} /> },
   { href: "/report", label: "Report Complaint", icon: <FilePenLine size={18} /> },
+  {
+    href: "/tips",
+    label: "Tips",
+    icon: <BookOpenText size={18} />,
+  }
 
 ];
 
