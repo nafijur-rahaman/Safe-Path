@@ -1,7 +1,13 @@
 // src/Pages/ReportComplaint.jsx
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  useMap,
+  useMapEvents,
+} from "react-leaflet";
 import {
   Search,
   LocateFixed,
@@ -29,7 +35,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
-
 
 const useGeoLocation = () => {
   const [coords, setCoords] = useState([23.81033, 90.412521]);
@@ -83,7 +88,6 @@ function MapFlyTo({ position }) {
   return null;
 }
 
-
 const Stepper = ({ currentStep }) => {
   const steps = useMemo(
     () => ["Incident Details", "Location & Time", "Review & Submit"],
@@ -133,7 +137,6 @@ const Stepper = ({ currentStep }) => {
   );
 };
 
-
 export default function ReportComplaint() {
   const { coords, setCoords } = useGeoLocation();
   const { api } = useAuth();
@@ -161,7 +164,6 @@ export default function ReportComplaint() {
     setFormData((prev) => ({ ...prev, location: address }));
   }, []);
 
-
   const fetchReports = useCallback(async () => {
     try {
       const res = await api.get("/report/get-all-reports/");
@@ -176,7 +178,6 @@ export default function ReportComplaint() {
   useEffect(() => {
     fetchReports();
   }, [fetchReports]);
-
 
   const handleSubmit = async () => {
     if (!formData.incidentType || !formData.dateTime || !formData.description) {
@@ -222,7 +223,6 @@ export default function ReportComplaint() {
     }
   };
 
-
   const handleDelete = async (reportId) => {
     if (!window.confirm("Are you sure you want to delete this report?")) return;
     try {
@@ -234,7 +234,6 @@ export default function ReportComplaint() {
       alert("Failed to delete report.");
     }
   };
-
 
   const handleEdit = (report) => {
     setFormData({
@@ -248,7 +247,6 @@ export default function ReportComplaint() {
     setEditingReport(report);
   };
 
- 
   const handleSearch = useCallback(async () => {
     if (!searchQuery.trim()) return;
     try {
@@ -295,206 +293,252 @@ export default function ReportComplaint() {
       <div className="max-w-7xl mx-auto flex flex-col-reverse lg:flex-row gap-8">
         {/* MAP */}
         <div className="w-full lg:w-3/5 h-[450px] lg:h-[80vh] rounded-2xl overflow-hidden shadow-xl">
-          <MapContainer center={coords} zoom={13} scrollWheelZoom className="w-full h-full">
+          <MapContainer
+            center={coords}
+            zoom={13}
+            scrollWheelZoom
+            className="w-full h-full"
+          >
             <TileLayer
               attribution="&copy; OpenStreetMap"
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <Marker position={coords} />
-            <MapEvents setPosition={setCoords} setAddress={(addr) => setFormData((f) => ({ ...f, location: addr }))} />
+            <MapEvents
+              setPosition={setCoords}
+              setAddress={(addr) =>
+                setFormData((f) => ({ ...f, location: addr }))
+              }
+            />
             <MapFlyTo position={coords} />
           </MapContainer>
         </div>
 
-{/* FORM + REPORT LIST */}
-<div className="w-full lg:w-2/5 flex flex-col gap-6">
-
-  <div className="bg-white p-6 md:p-8 shadow-xl rounded-2xl flex flex-col
-                  max-h-[90vh] overflow-y-auto">
-
-    <h1 className="text-2xl md:text-3xl font-bold mb-2">
-      {editingReport ? "Edit Report" : "Report an Incident"}
-    </h1>
-
-    <p className="text-gray-600 mb-6">
-      Your report is 100% anonymous.
-    </p>
-
-    <Stepper currentStep={step} />
-
-    <div className="flex flex-col flex-1 mt-6 space-y-6">
-      <AnimatePresence mode="wait">
-
-        {/* STEP 1 */}
-        {step === 1 && (
-          <motion.div
-            key="step1"
-            variants={stepVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="space-y-6"
+        {/* FORM + REPORT LIST */}
+        <div className="w-full lg:w-2/5 flex flex-col gap-6">
+          <div
+            className="bg-white p-6 md:p-8 shadow-xl rounded-2xl flex flex-col
+                  max-h-[90vh] overflow-y-auto"
           >
-            <IconSelect
-              label="Incident Type"
-              name="incidentType"
-              value={formData.incidentType}
-              onChange={(e) => setFormData({ ...formData, incidentType: e.target.value })}
-              icon={<List size={18} />}
-            >
-              <option value="" disabled>Select a type...</option>
-              <option value="verbal_harassment">Verbal Harassment</option>
-              <option value="physical_assault">Physical Assault</option>
-              <option value="discrimination">Discrimination</option>
-              <option value="stalking">Stalking</option>
-              <option value="unsafe_area">Unsafe Area</option>
-              <option value="other">Other</option>
-            </IconSelect>
+            <h1 className="text-2xl md:text-3xl font-bold mb-2">
+              {editingReport ? "Edit Report" : "Report an Incident"}
+            </h1>
 
-            <IconTextarea
-              label="Description"
-              name="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Describe what happened..."
-              icon={<FileText size={18} />}
-            />
+            <p className="text-gray-600 mb-6">Your report is 100% anonymous.</p>
 
-            <div className="pt-4 flex justify-end">
-              <button
-                onClick={nextStep}
-                className="px-5 py-2.5 bg-blue-600 text-white rounded-lg flex items-center gap-2"
-              >
-                Next <ArrowRight size={16} />
-              </button>
+            <Stepper currentStep={step} />
+
+            <div className="flex flex-col flex-1 mt-6 space-y-6">
+              <AnimatePresence mode="wait">
+                {/* STEP 1 */}
+                {step === 1 && (
+                  <motion.div
+                    key="step1"
+                    variants={stepVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="space-y-6"
+                  >
+                    <IconSelect
+                      label="Incident Type"
+                      name="incidentType"
+                      value={formData.incidentType}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          incidentType: e.target.value,
+                        })
+                      }
+                      icon={<List size={18} />}
+                    >
+                      <option value="" disabled>
+                        Select a type...
+                      </option>
+                      <option value="verbal_harassment">
+                        Verbal Harassment
+                      </option>
+                      <option value="physical_assault">Physical Assault</option>
+                      <option value="discrimination">Discrimination</option>
+                      <option value="stalking">Stalking</option>
+                      <option value="unsafe_area">Unsafe Area</option>
+                      <option value="other">Other</option>
+                    </IconSelect>
+
+                    <IconTextarea
+                      label="Description"
+                      name="description"
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          description: e.target.value,
+                        })
+                      }
+                      placeholder="Describe what happened..."
+                      icon={<FileText size={18} />}
+                    />
+
+                    <div className="pt-4 flex justify-end">
+                      <button
+                        onClick={nextStep}
+                        className="px-5 py-2.5 bg-blue-600 text-white rounded-lg flex items-center gap-2"
+                      >
+                        Next <ArrowRight size={16} />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* STEP 2 */}
+                {step === 2 && (
+                  <motion.div
+                    key="step2"
+                    variants={stepVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="space-y-6"
+                  >
+                    <IconInput
+                      label="Date & Time"
+                      name="dateTime"
+                      type="datetime-local"
+                      value={formData.dateTime}
+                      onChange={(e) =>
+                        setFormData({ ...formData, dateTime: e.target.value })
+                      }
+                      icon={<Calendar size={18} />}
+                    />
+
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium">
+                        Location
+                      </label>
+                      <p className="text-xs text-gray-500">
+                        Click map, search, or use current location.
+                      </p>
+
+                      <div className="flex space-x-2">
+                        <input
+                          type="text"
+                          placeholder="Search address..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                          className="flex-1 px-4 py-2 border rounded-lg"
+                        />
+                        <button
+                          onClick={handleSearch}
+                          className="bg-blue-600 text-white p-3 rounded-lg"
+                        >
+                          <Search size={18} />
+                        </button>
+                        <button
+                          onClick={goToCurrentLocation}
+                          className="bg-green-600 text-white p-3 rounded-lg"
+                        >
+                          <LocateFixed size={18} />
+                        </button>
+                      </div>
+
+                      <IconInput
+                        name="location"
+                        value={formData.location}
+                        icon={<MapPin size={18} />}
+                        readOnly
+                        placeholder="Location will appear here"
+                        isReadOnly
+                      />
+                    </div>
+
+                    <div className="pt-4 flex justify-between">
+                      <button
+                        onClick={prevStep}
+                        className="px-5 py-2.5 border bg-white border-gray-300 hover:bg-gray-100 rounded-lg flex items-center gap-2"
+                      >
+                        <ArrowLeft size={16} /> Back
+                      </button>
+
+                      <button
+                        onClick={nextStep}
+                        className="px-5 py-2.5 bg-blue-600 text-white rounded-lg flex items-center gap-2"
+                      >
+                        Next <ArrowRight size={16} />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* STEP 3 */}
+                {step === 3 && (
+                  <motion.div
+                    key="step3"
+                    variants={stepVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="space-y-6"
+                  >
+                    <h3 className="text-xl font-semibold">
+                      Review Information
+                    </h3>
+
+                    <div className="flex items-center gap-3 bg-blue-50 text-blue-800 p-4 rounded-lg border">
+                      <Shield size={24} />
+                      <span>
+                        Your report is anonymous. Please confirm details.
+                      </span>
+                    </div>
+
+                    <dl className="space-y-4 border rounded-lg p-4 bg-gray-50">
+                      <InfoRow label="Type" value={formData.incidentType} />
+                      <InfoRow
+                        label="Date/Time"
+                        value={
+                          formData.dateTime
+                            ? new Date(formData.dateTime).toLocaleString()
+                            : "N/A"
+                        }
+                      />
+                      <InfoRow label="Location" value={formData.location} />
+
+                      <div>
+                        <dt className="font-medium text-gray-600">
+                          Description
+                        </dt>
+                        <dd className="p-3 bg-white rounded">
+                          {formData.description || "N/A"}
+                        </dd>
+                      </div>
+                    </dl>
+
+                    <div className="pt-4 flex justify-between">
+                      <button
+                        onClick={prevStep}
+                        className="px-5 py-2.5 border bg-white border-gray-300 hover:bg-gray-100 rounded-lg flex items-center gap-2"
+                      >
+                        <ArrowLeft size={16} /> Back
+                      </button>
+
+                      <button
+                        onClick={handleSubmit}
+                        className="px-5 py-2.5 bg-green-600 text-white rounded-lg flex items-center gap-2"
+                      >
+                        <Shield size={16} />{" "}
+                        {editingReport ? "Update" : "Submit"}
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-          </motion.div>
-        )}
-
-        {/* STEP 2 */}
-        {step === 2 && (
-          <motion.div
-            key="step2"
-            variants={stepVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="space-y-6"
-          >
-            <IconInput
-              label="Date & Time"
-              name="dateTime"
-              type="datetime-local"
-              value={formData.dateTime}
-              onChange={(e) => setFormData({ ...formData, dateTime: e.target.value })}
-              icon={<Calendar size={18} />}
-            />
-
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">Location</label>
-              <p className="text-xs text-gray-500">Click map, search, or use current location.</p>
-
-              <div className="flex space-x-2">
-                <input
-                  type="text"
-                  placeholder="Search address..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                  className="flex-1 px-4 py-2 border rounded-lg"
-                />
-                <button onClick={handleSearch} className="bg-blue-600 text-white p-3 rounded-lg">
-                  <Search size={18} />
-                </button>
-                <button onClick={goToCurrentLocation} className="bg-green-600 text-white p-3 rounded-lg">
-                  <LocateFixed size={18} />
-                </button>
-              </div>
-
-              <IconInput
-                name="location"
-                value={formData.location}
-                icon={<MapPin size={18} />}
-                readOnly
-                placeholder="Location will appear here"
-                isReadOnly
-              />
-            </div>
-
-            <div className="pt-4 flex justify-between">
-              <button
-                onClick={prevStep}
-                className="px-5 py-2.5 border bg-white border-gray-300 hover:bg-gray-100 rounded-lg flex items-center gap-2"
-              >
-                <ArrowLeft size={16} /> Back
-              </button>
-
-              <button
-                onClick={nextStep}
-                className="px-5 py-2.5 bg-blue-600 text-white rounded-lg flex items-center gap-2"
-              >
-                Next <ArrowRight size={16} />
-              </button>
-            </div>
-          </motion.div>
-        )}
-
-        {/* STEP 3 */}
-        {step === 3 && (
-          <motion.div
-            key="step3"
-            variants={stepVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="space-y-6"
-          >
-            <h3 className="text-xl font-semibold">Review Information</h3>
-
-            <div className="flex items-center gap-3 bg-blue-50 text-blue-800 p-4 rounded-lg border">
-              <Shield size={24} />
-              <span>Your report is anonymous. Please confirm details.</span>
-            </div>
-
-            <dl className="space-y-4 border rounded-lg p-4 bg-gray-50">
-              <InfoRow label="Type" value={formData.incidentType} />
-              <InfoRow label="Date/Time" value={formData.dateTime ? new Date(formData.dateTime).toLocaleString() : "N/A"} />
-              <InfoRow label="Location" value={formData.location} />
-
-              <div>
-                <dt className="font-medium text-gray-600">Description</dt>
-                <dd className="p-3 bg-white rounded">{formData.description || "N/A"}</dd>
-              </div>
-            </dl>
-
-            <div className="pt-4 flex justify-between">
-              <button
-                onClick={prevStep}
-                className="px-5 py-2.5 border bg-white border-gray-300 hover:bg-gray-100 rounded-lg flex items-center gap-2"
-              >
-                <ArrowLeft size={16} /> Back
-              </button>
-
-              <button
-                onClick={handleSubmit}
-                className="px-5 py-2.5 bg-green-600 text-white rounded-lg flex items-center gap-2"
-              >
-                <Shield size={16} /> {editingReport ? "Update" : "Submit"}
-              </button>
-            </div>
-          </motion.div>
-        )}
-
-      </AnimatePresence>
-    </div>
-  </div>
-</div>
-
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-
 
 const InfoRow = ({ label, value }) => (
   <div className="flex justify-between">
@@ -503,11 +547,23 @@ const InfoRow = ({ label, value }) => (
   </div>
 );
 
-const IconInput = ({ label, name, type, value, onChange, placeholder, icon, readOnly, isReadOnly }) => (
+const IconInput = ({
+  label,
+  name,
+  type,
+  value,
+  onChange,
+  placeholder,
+  icon,
+  readOnly,
+  isReadOnly,
+}) => (
   <div>
     {label && <label className="block mb-1 text-sm">{label}</label>}
     <div className="relative">
-      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">{icon}</span>
+      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+        {icon}
+      </span>
       <input
         type={type}
         name={name}
@@ -515,7 +571,9 @@ const IconInput = ({ label, name, type, value, onChange, placeholder, icon, read
         onChange={onChange}
         readOnly={isReadOnly}
         placeholder={placeholder}
-        className={`w-full pl-10 pr-3 py-2 border rounded-lg ${isReadOnly ? "bg-gray-100" : "bg-white"}`}
+        className={`w-full pl-10 pr-3 py-2 border rounded-lg ${
+          isReadOnly ? "bg-gray-100" : "bg-white"
+        }`}
       />
     </div>
   </div>
@@ -525,8 +583,17 @@ const IconSelect = ({ label, name, value, onChange, icon, children }) => (
   <div>
     <label className="block mb-1 text-sm">{label}</label>
     <div className="relative">
-      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">{icon}</span>
-      <select name={name} value={value} onChange={onChange} className="w-full pl-10 pr-4 py-2 border rounded-lg">{children}</select>
+      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+        {icon}
+      </span>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full pl-10 pr-4 py-2 border rounded-lg"
+      >
+        {children}
+      </select>
     </div>
   </div>
 );
@@ -536,7 +603,14 @@ const IconTextarea = ({ label, name, value, onChange, placeholder, icon }) => (
     <label className="block mb-1 text-sm">{label}</label>
     <div className="relative">
       <span className="absolute left-3 top-3 text-gray-400">{icon}</span>
-      <textarea rows="4" name={name} value={value} onChange={onChange} placeholder={placeholder} className="w-full pl-10 pr-3 py-2 border rounded-lg" />
+      <textarea
+        rows="4"
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="w-full pl-10 pr-3 py-2 border rounded-lg"
+      />
     </div>
   </div>
 );
