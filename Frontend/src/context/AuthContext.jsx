@@ -13,6 +13,9 @@ export const AuthProvider = ({ children }) => {
   const api = axios.create({
     baseURL: "https://safepath-server.vercel.app/api",
   });
+  // const api = axios.create({
+  //   baseURL: "http://127.0.0.1:8000/admin/api",
+  // });
 
   api.interceptors.request.use((config) => {
     if (token) config.headers["Authorization"] = `Token ${token}`;

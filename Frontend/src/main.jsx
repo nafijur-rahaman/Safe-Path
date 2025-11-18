@@ -4,7 +4,7 @@ import './index.css'
 import { RouterProvider } from "react-router/dom";
 import { router } from './Routes/routes';
 import 'leaflet/dist/leaflet.css';
-import { AuthProvider } from './context/Authcontext';
+import { AuthProvider } from './context/AuthContext';
 
 
 
