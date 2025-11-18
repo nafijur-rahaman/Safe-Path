@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     #local apps
     "report",
     'user',
+    'tips',
     
     #third party
     "rest_framework",

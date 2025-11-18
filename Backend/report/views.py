@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from django.db.models import Count
+from django.db.models import Q
 
 #local imports
 from .serializers import LocationSerializer, ReportSerializer
@@ -72,11 +73,11 @@ class ReportView(APIView):
 
 #----------Get Only Accepted Reports------------#
 
-class GetAllAcceptedReportsView(APIView):
+class GetAllAcceptedOrSolvedReportsView(APIView):
     def get(self, request):
         reports = Report.objects.filter(
-            status='accepted'
-        ).order_by('-id')  
+            Q(status='accepted') | Q(status='solved')
+        ).order_by('-id')
 
         paginator = PageNumberPagination()
         paginator.page_size = 10
