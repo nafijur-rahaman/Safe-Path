@@ -37,7 +37,7 @@ export default function ProfessionalNavbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="w-full bg-white shadow-md fixed top-0 z-50">
+    <header className="w-full bg-white navbar shadow-md fixed top-0 left-0 z-[5000]">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
         {/* Logo */}
         <div className="text-2xl font-bold text-indigo-600 tracking-wide">
