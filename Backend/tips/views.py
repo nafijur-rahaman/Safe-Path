@@ -13,13 +13,14 @@ class TipView(APIView):
 
 
     def post(self, request):
-        user = request.user
-        serializer = TipSerializer(data=request.data, context={'request': request})
+        serializer = TipSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(created_by=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response({
-            "success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            "success": False,
+            "errors": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         try:
