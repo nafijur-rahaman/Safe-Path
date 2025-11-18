@@ -329,12 +329,12 @@ export default function ReportComplaint() {
         {/* FORM + REPORT LIST */}
         <div className="w-full lg:w-2/5 flex flex-col gap-6">
           <div className="bg-white p-8 shadow-2xl rounded-2xl flex flex-col lg:h-[90vh]">
-            <h1 className="text-3xl font-bold mb-2">{editingReport ? "Edit Report" : "Report an Incident"}</h1>
+            <h1 className="text-3xl text-indigo-600 font-bold mb-2">{editingReport ? "Edit Report" : "Report an Incident"}</h1>
             <p className="text-gray-600 mb-8">Your report is 100% anonymous.</p>
 
             <Stepper currentStep={step} />
 
-            <div className="flex flex-col flex-1">
+            <div className="flex flex-col flex-1 cursor-pointer">
               <AnimatePresence mode="wait">
                 {/* STEP 1 */}
                 {step === 1 && (
@@ -373,7 +373,7 @@ export default function ReportComplaint() {
 
                     <div className="mt-auto pt-6 border-t flex justify-between">
                       <div></div>
-                      <button onClick={nextStep} className="px-5 py-2.5 bg-blue-600 text-white rounded-lg flex items-center gap-2">
+                      <button onClick={nextStep} className="px-5 py-2.5 bg-indigo-600 text-white rounded-lg flex items-center gap-2 cursor-pointer">
                         Next <ArrowRight size={16} />
                       </button>
                     </div>
@@ -412,10 +412,10 @@ export default function ReportComplaint() {
                           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                           className="flex-1 px-4 py-2 border rounded-lg"
                         />
-                        <button onClick={handleSearch} className="bg-blue-600 text-white p-3 rounded-lg">
+                        <button onClick={handleSearch} className="bg-blue-600 text-white p-3 rounded-lg cursor-pointer">
                           <Search size={18} />
                         </button>
-                        <button onClick={goToCurrentLocation} className="bg-green-600 text-white p-3 rounded-lg">
+                        <button onClick={goToCurrentLocation} className="bg-green-600 text-white p-3 rounded-lg cursor-pointer">
                           <LocateFixed size={18} />
                         </button>
                       </div>
@@ -431,11 +431,11 @@ export default function ReportComplaint() {
                     </div>
 
                     <div className="mt-auto pt-6 border-t flex justify-between">
-                      <button onClick={prevStep} className="px-5 py-2.5 rounded-lg flex items-center gap-2 border bg-white border-gray-300 hover:bg-gray-100">
+                      <button onClick={prevStep} className="px-5 py-2.5 rounded-lg flex items-center gap-2 border bg-white cursor-pointer border-gray-300 hover:bg-gray-100">
                         <ArrowLeft size={16} /> Back
                       </button>
 
-                      <button onClick={nextStep} className="px-5 py-2.5 bg-blue-600 text-white rounded-lg flex items-center gap-2">
+                      <button onClick={nextStep} className="px-5 py-2.5 bg-blue-600 text-white rounded-lg flex items-center cursor-pointer gap-2">
                         Next <ArrowRight size={16} />
                       </button>
                     </div>
@@ -470,11 +470,11 @@ export default function ReportComplaint() {
                     </dl>
 
                     <div className="mt-auto pt-6 border-t flex justify-between">
-                      <button onClick={prevStep} className="px-5 py-2.5 rounded-lg flex items-center gap-2 border bg-white border-gray-300 hover:bg-gray-100">
+                      <button onClick={prevStep} className="px-5 py-2.5 rounded-lg flex items-center gap-2 border cursor-pointer bg-white border-gray-300 hover:bg-gray-100">
                         <ArrowLeft size={16} /> Back
                       </button>
 
-                      <button onClick={handleSubmit} className="px-5 py-2.5 bg-green-600 text-white rounded-lg flex items-center gap-2">
+                      <button onClick={handleSubmit} className="px-5 py-2.5 bg-green-600 text-white cursor-pointer rounded-lg flex items-center gap-2">
                         <Shield size={16} /> {editingReport ? "Update" : "Submit"}
                       </button>
                     </div>
@@ -485,7 +485,7 @@ export default function ReportComplaint() {
           </div>
 
           {/* REPORT LIST */}
-          <div className="bg-white p-6 rounded-xl shadow-md overflow-y-auto max-h-[400px]">
+          {/* <div className="bg-white p-6 rounded-xl shadow-md overflow-y-auto max-h-[400px]">
             <h2 className="text-xl font-semibold mb-4">All Reports</h2>
             {reports.length === 0 && <p className="text-gray-500">No reports submitted yet.</p>}
             {reports.map((report) => (
@@ -505,7 +505,7 @@ export default function ReportComplaint() {
                 </div>
               </div>
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

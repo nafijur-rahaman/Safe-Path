@@ -97,7 +97,7 @@ function MapView({ selectedLocation, reports }) {
 
       <button
         onClick={goToCurrentLocation}
-        className="absolute bottom-4 left-4 z-[1000] bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-lg"
+        className="absolute bottom-4 left-4 z-[1000] bg-indigo-500 hover:bg-indigo-600 text-white rounded-full p-3 shadow-lg"
         title="Current Location"
       >
         <LocateFixed size={20} />

@@ -6,7 +6,7 @@ import ProblemOfSilence from "../components/ProblemOfSilence";
 
 const HomePage = () => {
   return (
-    <div className="bg-white text-gray-900">
+    <div className="bg-white text-indigo-600">
       <Hero />
 
       <MapView />

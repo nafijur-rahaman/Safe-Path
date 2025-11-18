@@ -124,8 +124,8 @@ console.log(incidents);
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900">All Reported Incidents</h1>
-          <p className="text-lg text-gray-600 mt-1">
+          <h1 className="text-4xl font-bold text-indigo-600">All Reported Incidents</h1>
+          <p className="text-lg text-gray-500 mt-1">
             View all publicly reported incidents and their status.
           </p>
         </div>
