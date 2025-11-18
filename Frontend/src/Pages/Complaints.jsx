@@ -122,7 +122,7 @@ export default function Complaints() {
   const handleCloseModal = () => setSelectedIncident(null);
 
   return (
-    <div className="flex-1 bg-gray-50 min-h-screen p-6 md:p-10 font-sans">
+    <div className="flex-1 mt-20 min-h-screen p-6 md:p-10 font-sans">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <div>

@@ -285,7 +285,7 @@ export default function ReportComplaint() {
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
   return (
-    <div className="w-full min-h-screen p-4 md:p-8 bg-gray-50">
+    <div className="w-full mt-20 min-h-screen p-4 md:p-8 bg-gray-50">
       {loading && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
           <div className="text-white text-lg font-bold">Submitting...</div>

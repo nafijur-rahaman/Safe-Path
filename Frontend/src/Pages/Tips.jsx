@@ -38,7 +38,7 @@ export default function Tips() {
     );
 
   return (
-    <div className="p-6 md:p-10 bg-gray-50 min-h-screen">
+    <div className="p-6 mt-20 md:p-10 min-h-screen">
       <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
         Safety & Awareness Tips
       </h1>
@@ -78,7 +78,7 @@ function TipCard({ tip }) {
 
 function TipsSkeleton() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 mt-20 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {[...Array(6)].map((_, i) => (
         <div
           key={i}
