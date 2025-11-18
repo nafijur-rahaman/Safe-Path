@@ -35,13 +35,13 @@ export const router = createBrowserRouter([
     ]
   },
     {
-      path: "/admin",
+      path: "/admin-dashboard",
       element:<PrivateRoute>
         <AdminLayout/>
       </PrivateRoute>,
       children:[
         {
-          path:"dashboard",
+          index:true,
           element:<PrivateRoute>
             <Dashboard/>
           </PrivateRoute>

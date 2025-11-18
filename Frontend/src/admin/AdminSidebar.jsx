@@ -47,7 +47,7 @@ const handleLogout = async () => {
 
         {/* Dashboard */}
         <NavLink
-          to="/admin/dashboard"
+          to="/admin-dashboard"
           end
           className={({ isActive }) =>
             isActive ? `${base} ${active}` : `${base} hover:bg-gray-800/40`
@@ -59,7 +59,7 @@ const handleLogout = async () => {
 
         {/* All Reports */}
         <NavLink
-          to="/admin/all-reports"
+          to="/admin-dashboard/all-reports"
           className={({ isActive }) =>
             isActive ? `${base} ${active}` : `${base} hover:bg-gray-800/40`
           }
@@ -70,7 +70,7 @@ const handleLogout = async () => {
 
         {/* All Tips */}
         <NavLink
-          to="/admin/all-tips"
+          to="/admin-dashboard/all-tips"
           className={({ isActive }) =>
             isActive ? `${base} ${active}` : `${base} hover:bg-gray-800/40`
           }
