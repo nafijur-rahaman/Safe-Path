@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../../context/Authcontext";
+import { useAuth } from "../../context/AuthContext";
 import { Search, AlertTriangle, Clock, MapPin } from "lucide-react";
 
 const INCIDENT_TYPES = [
@@ -45,7 +45,11 @@ const AllReports = () => {
 
   // Update status
   const updateStatus = async (id, newStatus) => {
-    const actionMap = { accepted: "accept", solved: "solve", rejected: "reject" };
+    const actionMap = {
+      accepted: "accept",
+      solved: "solve",
+      rejected: "reject",
+    };
     const action = actionMap[newStatus];
 
     try {
@@ -75,7 +79,9 @@ const AllReports = () => {
         <h1 className="text-4xl font-extrabold bg-gradient-to-r from-red-600 to-pink-500 bg-clip-text text-transparent">
           All Incident Reports
         </h1>
-        <p className="text-gray-500 mt-2">Review and monitor all user-submitted harassment reports.</p>
+        <p className="text-gray-500 mt-2">
+          Review and monitor all user-submitted harassment reports.
+        </p>
       </div>
 
       {/* Search & Filters */}
@@ -133,11 +139,15 @@ const AllReports = () => {
         </div>
 
         {/* Loading */}
-        {loading && <div className="p-8 text-center text-gray-600">Loading reports…</div>}
+        {loading && (
+          <div className="p-8 text-center text-gray-600">Loading reports…</div>
+        )}
 
         {/* No Data */}
         {!loading && filteredReports.length === 0 && (
-          <div className="p-8 text-center text-gray-400">No reports found...</div>
+          <div className="p-8 text-center text-gray-400">
+            No reports found...
+          </div>
         )}
 
         {/* Rows */}
@@ -151,7 +161,9 @@ const AllReports = () => {
               <AlertTriangle size={16} className="text-red-500" />
               {r.incident_type.replace("_", " ")}
             </p>
-            <p className="text-gray-500 truncate max-w-[200px]">{r.description}</p>
+            <p className="text-gray-500 truncate max-w-[200px]">
+              {r.description}
+            </p>
             <p className="flex items-center gap-2 text-gray-700 text-sm">
               <MapPin size={14} className="text-red-500" />
               {r.location?.display_name || "Unknown"}
@@ -165,11 +177,11 @@ const AllReports = () => {
             <div className="flex flex-col gap-2">
               <span
                 className={`px-3 py-1 rounded-full text-xs font-semibold w-fit ${
-                  STATUS_CHOICES.find((s) => s.value === r.status)?.color === "yellow"
+                  r.status === "pending"
                     ? "bg-yellow-100 text-yellow-700"
-                    : STATUS_CHOICES.find((s) => s.value === r.status)?.color === "green"
+                    : r.status === "accepted"
                     ? "bg-green-100 text-green-700"
-                    : STATUS_CHOICES.find((s) => s.value === r.status)?.color === "blue"
+                    : r.status === "solved"
                     ? "bg-blue-100 text-blue-700"
                     : "bg-red-100 text-red-700"
                 }`}
@@ -184,7 +196,9 @@ const AllReports = () => {
                   onChange={(e) => updateStatus(r.id, e.target.value)}
                   className="px-2 py-1 text-xs rounded border border-gray-300 bg-white text-gray-700"
                 >
-                  {STATUS_CHOICES.filter((s) => s.value !== "pending" && s.value !== "solved").map((s) => (
+                  {STATUS_CHOICES.filter(
+                    (s) => s.value !== "pending" // never allow changing back to pending
+                  ).map((s) => (
                     <option key={s.value} value={s.value}>
                       {s.label}
                     </option>
