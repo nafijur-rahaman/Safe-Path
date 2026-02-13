@@ -185,8 +185,9 @@ const handleSubmit = async () => {
   if (!formData.incidentType || !formData.dateTime || !formData.description) {
     return Swal.fire({
       icon: "warning",
-      title: "Missing Info",
-      text: "Please fill all required fields.",
+      title: "Missing Information",
+      text: "Please fill in all the required fields before continuing.",
+      confirmButtonColor: "#6366f1",
     });
   }
 
@@ -202,48 +203,55 @@ const handleSubmit = async () => {
     status: "pending",
   };
 
+  // SHOW LOADING
   Swal.fire({
-    title: "Submitting...",
+    title: editingReport ? "Updating Report..." : "Submitting Report...",
+    html: "<b>Please wait...</b>",
     allowOutsideClick: false,
-    didOpen: () => Swal.showLoading(),
+    allowEscapeKey: false,
+    didOpen: () => {
+      Swal.showLoading();
+    },
   });
 
   try {
     if (editingReport) {
       await api.put(`/report/${editingReport.id}/update/`, payload);
-      Swal.fire({
-        icon: "success",
-        title: "Updated!",
-        text: "Report updated successfully!",
-      });
     } else {
       await api.post("/report/create/", payload);
-      Swal.fire({
-        icon: "success",
-        title: "Submitted!",
-        text: "Report submitted successfully!",
-      });
     }
 
+    // SUCCESS ALERT
+    await Swal.fire({
+      icon: "success",
+      title: editingReport ? "Report Updated!" : "Report Submitted!",
+      text: editingReport
+        ? "Your report has been updated successfully."
+        : "Your report is now submitted anonymously.",
+      confirmButtonColor: "#10b981",
+    });
+
+    // RESET FORM
     setFormData({
       incidentType: "",
       dateTime: "",
       description: "",
       location: "",
     });
-
     setStep(1);
     setEditingReport(null);
+
     fetchReports();
   } catch (err) {
     console.error(err.response?.data || err.message);
+
+    // ERROR ALERT
     Swal.fire({
       icon: "error",
-      title: "Error",
-      text: "Failed to submit report.",
+      title: "Something went wrong",
+      text: "We couldn't process your report. Try again later.",
+      confirmButtonColor: "#ef4444",
     });
-  } finally {
-    Swal.close();
   }
 };
 
@@ -400,7 +408,7 @@ const handleSubmit = async () => {
 
                     <div className="mt-auto pt-6 border-t flex justify-between">
                       <div></div>
-                      <button onClick={nextStep} className="px-5 py-2.5 bg-indigo-600 text-white rounded-lg flex items-center gap-2 cursor-pointer">
+                      <button onClick={nextStep} className="px-5 py-2.5 bg-blue-600 text-white rounded-lg flex items-center gap-2 cursor-pointer">
                         Next <ArrowRight size={16} />
                       </button>
                     </div>
