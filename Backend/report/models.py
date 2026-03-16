@@ -25,3 +25,7 @@ class ReportTag(models.Model):
     tag = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     
+class ReportCategory(models.Model):
+    report = models.ForeignKey(Report, related_name='categories', on_delete=models.CASCADE)
+    category = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
